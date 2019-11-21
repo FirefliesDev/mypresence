@@ -28,6 +28,8 @@ class ColorsPalette {
 
   /// Background Color Light Gray
   static const Color backgroundColorLightGray = const Color(0XFFE6E6E6);
+
+  static get expansionParentHeaderColor => const Color(0xFF394964);
 }
 
 /// Schema Color URL

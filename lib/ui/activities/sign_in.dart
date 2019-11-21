@@ -1,8 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mypresence/authentication/base_auth.dart';
 import 'package:mypresence/ui/widgets/google_button.dart';
+import 'package:mypresence/ui/widgets/progress_indicator_modal.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 
 class SignIn extends StatefulWidget {
+  final BaseAuth auth;
+  final void Function(FirebaseUser) onSignedIn;
+
+  SignIn({@required this.auth, @required this.onSignedIn});
+
   @override
   _SignInState createState() => _SignInState();
 }
@@ -11,6 +19,7 @@ class _SignInState extends State<SignIn> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String emailValue, passwordValue;
   bool isObscureText = true;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -97,9 +106,7 @@ class _SignInState extends State<SignIn> {
         Padding(
           padding: const EdgeInsets.only(top: 30.0),
           child: _buildFlatButton(
-              color: ColorsPalette.primaryColor,
-              name: 'Entrar',
-              onTap: signIn),
+              color: ColorsPalette.primaryColor, name: 'Entrar', onTap: signIn),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -130,28 +137,31 @@ class _SignInState extends State<SignIn> {
         ),
         GoogleButton(
           name: 'Entrar com o Google',
-          onTap: () {},
+          onTap: _signInWithGoogle,
         ),
       ],
     );
 
     return Scaffold(
       backgroundColor: ColorsPalette.backgroundColorLight,
-      body: SafeArea(
-        child: SingleChildScrollView(
-            child: Column(
-          children: <Widget>[
-            Container(
-              height: 30,
-              color: ColorsPalette.primaryColor,
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 0),
-              child: Form(key: _formKey, child: _body),
-            )
-          ],
-        )),
+      body: ProgressIndicatorModal(
+        child: SafeArea(
+          child: SingleChildScrollView(
+              child: Column(
+            children: <Widget>[
+              Container(
+                height: 30,
+                color: ColorsPalette.primaryColor,
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 0),
+                child: Form(key: _formKey, child: _body),
+              )
+            ],
+          )),
+        ),
+        inAsyncCall: isLoading,
       ),
     );
   }
@@ -176,6 +186,23 @@ class _SignInState extends State<SignIn> {
   Future<void> signIn() async {
     if (isValidForm()) {
       print('Valid form.');
+    }
+  }
+
+  /// Sign the user with Google
+  Future<void> _signInWithGoogle() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      debugPrint('Logging in with Google...');
+      widget.onSignedIn(await widget.auth.signInWithGoogle());
+    } catch (e) {
+      debugPrint('Error Google: ' + e.toString());
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 

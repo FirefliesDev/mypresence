@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mypresence/authentication/base_auth.dart';
+import 'package:mypresence/ui/widgets/navigation_drawer.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 
 class Home extends StatefulWidget {
@@ -25,8 +26,14 @@ class _HomeState extends State<Home> {
     return Scaffold(
         backgroundColor: ColorsPalette.backgroundColorLight,
         appBar: _buildAppBar(),
+        drawer: NavigationDrawer(
+          user: widget.currentUser,
+          email: widget.currentUser.email,
+          photoUrl: widget.currentUser.photoUrl,
+          onSignedOut: _signedOut,
+        ),
         body: Center(
-          child: Text(widget.currentUser.displayName),
+          child: Text('Minha lista de eventos'),
         ));
   }
 
@@ -37,13 +44,6 @@ class _HomeState extends State<Home> {
         'Home',
         style: TextStyle(color: ColorsPalette.textColorLight),
       ),
-      actions: <Widget>[
-        IconButton(
-          onPressed: _signedOut,
-          icon: Icon(Icons.exit_to_app),
-          color: ColorsPalette.textColorDark,
-        )
-      ],
       iconTheme: IconThemeData(color: ColorsPalette.textColorLight),
     );
   }

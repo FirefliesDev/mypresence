@@ -69,12 +69,16 @@ class NavigationDrawer extends StatelessWidget {
                 icon: Icons.person,
               ),
               ListTitleDrawer(
-                text: 'Eventos',
-                icon: Icons.bookmark,
+                text: 'Meus Eventos',
+                icon: Icons.event_note,
+              ),
+              Container(
+                height: 1.25,
+                color: ColorsPalette.backgroundColorLightGray,
               ),
               ListTitleDrawer(
-                text: 'Eventos',
-                icon: Icons.bookmark,
+                text: 'Gestão de Eventos',
+                icon: Icons.build,
               ),
               Container(
                 height: 1.25,

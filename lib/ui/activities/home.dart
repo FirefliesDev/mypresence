@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
   /// Creates a Scaffold
   Widget _buildScaffold() {
     return Scaffold(
-      backgroundColor: ColorsPalette.backgroundColorLight,
+      backgroundColor: ColorsPalette.backgroundColorSnow,
       appBar: _buildAppBar(),
       drawer: NavigationDrawer(
         user: widget.currentUser,
@@ -73,15 +73,37 @@ class _HomeState extends State<Home> {
     List<Widget> list = new List();
 
     list.add(Container(
-          margin: new EdgeInsets.only(bottom: 10),
-          child: cet.ExpansionTile(
+      margin: new EdgeInsets.only(bottom: 10),
+      color: ColorsPalette.backgroundColorCello,
+      child: Container(
+        child: cet.ExpansionTile(
+          title: Container(
+            child: Text(
+              'Thursday, July 1',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+          headerBackgroundColor: ColorsPalette.backgroundColorCello,
+          backgroundColor: ColorsPalette.backgroundColorLight,
+          iconColor: Colors.white,
+          children: _listEventsWidgets(),
+        ),
+      ),
+    ));
+
+    list.add(Container(
+      margin: new EdgeInsets.only(bottom: 10),
+      color: ColorsPalette.backgroundColorCello,
+      child: cet.ExpansionTile(
         title: Text(
-          'Thursday, July 1',
+          'Friday, July 2',
           style: TextStyle(
             color: Colors.white,
           ),
         ),
-        headerBackgroundColor: ColorsPalette.expansionParentHeaderColor,
+        headerBackgroundColor: ColorsPalette.backgroundColorCello,
         backgroundColor: ColorsPalette.backgroundColorLight,
         iconColor: Colors.white,
         children: _listEventsWidgets(),
@@ -89,50 +111,34 @@ class _HomeState extends State<Home> {
     ));
 
     list.add(Container(
-          
-          margin: new EdgeInsets.only(bottom: 10),
-
-          child: cet.ExpansionTile(
-        title: Text(
-          'Friday, July 2',
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        headerBackgroundColor: ColorsPalette.expansionParentHeaderColor,
-        backgroundColor: ColorsPalette.expansionParentHeaderColor,
-        iconColor: Colors.white,
-        children: _listEventsWidgets(),
-      ),
-    ));
-
-    list.add(Container(
-          margin: new EdgeInsets.only(bottom: 10),
-          child: cet.ExpansionTile(
+      margin: new EdgeInsets.only(bottom: 10),
+      color: ColorsPalette.backgroundColorCello,
+      child: cet.ExpansionTile(
         title: Text(
           'Saturday, July 3',
           style: TextStyle(
             color: Colors.white,
           ),
         ),
-        headerBackgroundColor: ColorsPalette.expansionParentHeaderColor,
-        backgroundColor: ColorsPalette.expansionParentHeaderColor,
+        headerBackgroundColor: ColorsPalette.backgroundColorCello,
+        backgroundColor: ColorsPalette.backgroundColorLight,
         iconColor: Colors.white,
         children: _listEventsWidgets(),
       ),
     ));
 
-list.add(Container(
-          margin: new EdgeInsets.only(bottom: 10),
-          child: cet.ExpansionTile(
+    list.add(Container(
+      margin: new EdgeInsets.only(bottom: 10),
+      color: ColorsPalette.backgroundColorCello,
+      child: cet.ExpansionTile(
         title: Text(
           'Monday, July 4',
           style: TextStyle(
             color: Colors.white,
           ),
         ),
-        headerBackgroundColor: ColorsPalette.expansionParentHeaderColor,
-        backgroundColor: ColorsPalette.expansionParentHeaderColor,
+        headerBackgroundColor: ColorsPalette.backgroundColorCello,
+        backgroundColor: ColorsPalette.backgroundColorLight,
         iconColor: Colors.white,
         children: _listEventsWidgets(),
       ),
@@ -144,24 +150,94 @@ list.add(Container(
   List<Widget> _listEventsWidgets() {
     List<Widget> list = new List();
 
-    list.add(ListTileItem(
-      colorHeader: ColorsPalette.backgroundColorLightGray,
-      eventName: 'First Event',
-      eventTime: '7:00',
-    ));
+    list.add(
+      Container(
+        margin: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 4.0),
+        decoration: BoxDecoration(
+          color: ColorsPalette.backgroundColorDanube,
+          borderRadius: new BorderRadius.all(
+            Radius.circular(5.0),
+          ),
+        ),
+        child: Row(
+          children: <Widget>[
+            Align(
+              alignment: Alignment.topLeft,
+              child: Container(
+                margin: EdgeInsets.only(left: 15.0),
+                width: 35.0,
+                height: 35.0,
+                decoration: new BoxDecoration(
+                  color: Colors.amber,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    '1',
+                    style: TextStyle(
+                      color: ColorsPalette.backgroundColorCello,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: ListTileItem(
+                  eventName: 'First Event',
+                  eventTime: '7:00',
+                  colorEventName: ColorsPalette.backgroundColorLight,
+                  colorEventTime: ColorsPalette.backgroundColorLight,
+                  divider: false,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
 
-    list.add(ListTileItem(
-      colorHeader: ColorsPalette.backgroundColorLight,
-      eventName: 'Second Event',
-      eventTime: '9:00',
-    ));
+    list.add(
+      Container(
+        margin: EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
+        decoration: BoxDecoration(
+          color: ColorsPalette.backgroundColorDanube,
+          borderRadius: new BorderRadius.all(
+            Radius.circular(5.0),
+          ),
+        ),
+        child: ListTileItem(
+          colorHeader: Color(0xFFFFFF),
+          eventName: 'Second Event',
+          eventTime: '9:00',
+          colorEventName: ColorsPalette.backgroundColorLight,
+          colorEventTime: ColorsPalette.backgroundColorLight,
+          divider: false,
+        ),
+      ),
+    );
 
-    list.add(ListTileItem(
-      colorHeader: ColorsPalette.backgroundColorLightGray,
-      eventName: 'Third Event',
-      eventTime: '11:00',
-      divider: false,
-    ));
+    list.add(
+      Container(
+        margin: EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 8.0),
+        decoration: BoxDecoration(
+          color: ColorsPalette.backgroundColorDanube,
+          borderRadius: new BorderRadius.all(
+            Radius.circular(5.0),
+          ),
+        ),
+        child: ListTileItem(
+          colorHeader: Color(0xFFFFFF),
+          eventName: 'Third Event',
+          eventTime: '11:00',
+          colorEventName: ColorsPalette.backgroundColorLight,
+          colorEventTime: ColorsPalette.backgroundColorLight,
+          divider: false,
+        ),
+      ),
+    );
 
     return list;
   }

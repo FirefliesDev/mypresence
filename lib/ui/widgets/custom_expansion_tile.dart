@@ -148,11 +148,8 @@ class _ExpansionTileState extends State<ExpansionTile>
 
     return Container(
       decoration: BoxDecoration(
-          color: _backgroundColor.value ?? Colors.transparent,
-          border: Border(
-            top: BorderSide(color: borderSideColor),
-            bottom: BorderSide(color: borderSideColor),
-          )),
+        color: _backgroundColor.value ?? Colors.transparent,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[

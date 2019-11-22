@@ -26,10 +26,21 @@ class ColorsPalette {
   /// Background Color Light version
   static const Color backgroundColorLight = const Color(0XFFFAFAFA);
 
+  /// Background Color Snow version
+  static const Color backgroundColorSnow = const Color(0XFFF7F2F2);
+
   /// Background Color Light Gray
   static const Color backgroundColorLightGray = const Color(0XFFE6E6E6);
 
-  static get expansionParentHeaderColor => const Color(0xFF394964);
+  /// Background Color Cello
+  static const Color backgroundColorCello = const Color(0xFF394964);
+
+  /// Background Color Danube
+  static const Color backgroundColorDanube = const Color(0xFF6B90C5);
+
+  ///Light Slate Grey
+  static const Color backgroundColorLightSlateGrey = const Color(0xFF75879C);
+
 }
 
 /// Schema Color URL

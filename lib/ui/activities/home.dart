@@ -46,7 +46,7 @@ class _HomeState extends State<Home> {
         ),
         floatingActionButton: FloatingActionButton(
             elevation: 0.0,
-            child: Icon(Icons.add),
+            child: Icon(Icons.camera_alt),
             backgroundColor: ColorsPalette.accentColor,
             onPressed: () {}));
   }

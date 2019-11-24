@@ -156,7 +156,6 @@ class _ExpansionTileState extends State<ExpansionTile>
           IconTheme.merge(
             data: IconThemeData(color: _iconColor.value),
             child: Container(
-              color: widget.headerBackgroundColor ?? Colors.black,
               child: ListTile(
                 onTap: _handleTap,
                 leading: widget.leading,

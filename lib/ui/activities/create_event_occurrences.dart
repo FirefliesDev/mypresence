@@ -7,11 +7,15 @@ import 'package:mypresence/utils/colors_palette.dart';
 import 'package:intl/intl.dart';
 
 class CreateEventOccurrences extends StatefulWidget {
+  final String eventName;
+  CreateEventOccurrences({this.eventName});
   @override
   _CreateEventOccurrencesState createState() => _CreateEventOccurrencesState();
 }
 
 class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String _localValue, _timeStartValue, _timeEndValue;
   TextEditingController _timeStartController;
   TextEditingController _timeEndController;
   static DateTime now = DateTime.now();
@@ -74,7 +78,7 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
     final _location = TextFormField(
       validator: (input) =>
           input.isEmpty ? 'Digite o local do seu evento' : null,
-      // onSaved: (input) => emailValue = input,
+      onSaved: (input) => _localValue = input,
       decoration: InputDecoration(
         labelText: 'Local',
         prefixIcon: Icon(
@@ -91,6 +95,7 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
           String time = '${DateFormat('HH:mm').format(date)}';
           setState(() {
             _timeStartController = TextEditingController(text: time);
+            // _timeStartValue = time;
           });
         }, currentTime: DateTime.now(), locale: LocaleType.pt);
       },
@@ -100,7 +105,7 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
           child: TextFormField(
             controller: _timeStartController,
             validator: (input) => input.isEmpty ? 'Início' : null,
-            // onSaved: (input) => emailValue = input,
+            onSaved: (input) => _timeStartValue = input,
             decoration: InputDecoration(
               labelText: 'Início',
               prefixIcon: Icon(
@@ -129,7 +134,7 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
         child: TextFormField(
           controller: _timeEndController,
           validator: (input) => input.isEmpty ? 'Fim' : null,
-          // onSaved: (input) => emailValue = input,
+          onSaved: (input) => _timeEndValue = input,
           decoration: InputDecoration(
             labelText: 'Fim',
             prefixIcon: Icon(
@@ -146,53 +151,56 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
       backgroundColor: ColorsPalette.backgroundColorSnow,
       body: SingleChildScrollView(
         child: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    "Ocorrências",
-                    style: TextStyle(
-                        color: ColorsPalette.textColorDark,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700),
-                    textAlign: TextAlign.center,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15),
-                    child: Text(
-                      "Informe a data, o local e a duração do seu evento. Você pode adicionar quantas datas quiser!",
+          child: Form(
+            key: _formKey,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      "Ocorrências",
                       style: TextStyle(
-                          color: ColorsPalette.textColorDark90,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400),
+                          color: ColorsPalette.textColorDark,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                     ),
-                  ),
-                  calendarCarousel(),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 0, bottom: 30),
-                    child: _location,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 30),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Expanded(
-                          child: _timeStart,
-                        ),
-                        SizedBox(
-                          width: 30,
-                        ),
-                        Expanded(
-                          child: _timeEnd,
-                        )
-                      ],
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15),
+                      child: Text(
+                        "Informe a data, o local e a duração do seu evento. Você pode adicionar quantas datas quiser!",
+                        style: TextStyle(
+                            color: ColorsPalette.textColorDark90,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                  ),
-                ],
+                    calendarCarousel(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 0, bottom: 30),
+                      child: _location,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 30),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Expanded(
+                            child: _timeStart,
+                          ),
+                          SizedBox(
+                            width: 30,
+                          ),
+                          Expanded(
+                            child: _timeEnd,
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -204,7 +212,16 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: GestureDetector(
-            onTap: () {},
+            onTap: () {
+              if (isValidForm()) {
+                saveDataForm();
+                print('clicked ${widget.eventName}');
+                print('clicked $_localValue');
+                print('clicked $_timeStartValue');
+                print('clicked $_timeEndValue');
+                print('clicked ${DateFormat('yyyy-MM-dd').format(_date)}');
+              }
+            },
             child: Text(
               "CRIAR EVENTO",
               style: TextStyle(
@@ -239,5 +256,15 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
       ),
       iconTheme: IconThemeData(color: ColorsPalette.textColorLight),
     );
+  }
+
+  ///
+  bool isValidForm() {
+    return _formKey.currentState.validate();
+  }
+
+  ///
+  void saveDataForm() {
+    _formKey.currentState.save();
   }
 }

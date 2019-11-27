@@ -4,12 +4,16 @@ import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 
+import 'package:intl/intl.dart';
+
 class CreateEventOccurrences extends StatefulWidget {
   @override
   _CreateEventOccurrencesState createState() => _CreateEventOccurrencesState();
 }
 
 class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
+  TextEditingController _timeStartController;
+  TextEditingController _timeEndController;
   static DateTime now = DateTime.now();
   DateTime currentdate = DateTime(now.year, now.month, now.day);
   //
@@ -17,6 +21,12 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
 
   Color _todayButtonColor = ColorsPalette.accentColor;
   TextStyle _todayTextStyle = TextStyle(fontSize: 14.0, color: Colors.white);
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return _buildScaffold(context);
@@ -24,7 +34,7 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
 
   Widget calendarCarousel() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.0),
+      margin: EdgeInsets.symmetric(horizontal: 0.0),
       child: CalendarCarousel<Event>(
         onDayPressed: (DateTime date, List<Event> events) {
           // this.setState(() => );
@@ -74,22 +84,62 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
       ),
     );
 
-    final _timeStart = FlatButton(
-        onPressed: () {
-          DatePicker.showTimePicker(context, showTitleActions: true,
-              onChanged: (date) {
-            print('change $date');
-          }, onConfirm: (date) {
-            print('confirm $date');
-          }, currentTime: DateTime.now(), locale: LocaleType.pt);
-        },
-        child: Text(
-          'Start',
-          style: TextStyle(color: Colors.blue),
-        ));
-    ;
+    final _timeStart = GestureDetector(
+      onTap: () {
+        DatePicker.showTimePicker(context,
+            showTitleActions: true, onChanged: (date) {}, onConfirm: (date) {
+          String time = '${DateFormat('HH:mm').format(date)}';
+          setState(() {
+            _timeStartController = TextEditingController(text: time);
+          });
+        }, currentTime: DateTime.now(), locale: LocaleType.pt);
+      },
+      child: Align(
+        alignment: Alignment.center,
+        child: AbsorbPointer(
+          child: TextFormField(
+            controller: _timeStartController,
+            validator: (input) => input.isEmpty ? 'Início' : null,
+            // onSaved: (input) => emailValue = input,
+            decoration: InputDecoration(
+              labelText: 'Início',
+              prefixIcon: Icon(
+                Icons.timer,
+                color: ColorsPalette.primaryColor,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
 
-    final _timeEnd = Text('End');
+    final _timeEnd = GestureDetector(
+      onTap: () {
+        DatePicker.showTimePicker(context,
+            showTitleActions: true, onChanged: (date) {}, onConfirm: (date) {
+          print('confirm $date');
+          print('change ${date.hour}:${date.minute}');
+          String time = '${DateFormat('HH:mm').format(date)}';
+          setState(() {
+            _timeEndController = TextEditingController(text: time);
+          });
+        }, currentTime: DateTime.now(), locale: LocaleType.pt);
+      },
+      child: AbsorbPointer(
+        child: TextFormField(
+          controller: _timeEndController,
+          validator: (input) => input.isEmpty ? 'Fim' : null,
+          // onSaved: (input) => emailValue = input,
+          decoration: InputDecoration(
+            labelText: 'Fim',
+            prefixIcon: Icon(
+              Icons.timer,
+              color: ColorsPalette.primaryColor,
+            ),
+          ),
+        ),
+      ),
+    );
 
     return Scaffold(
       appBar: _buildAppBar(context),
@@ -122,20 +172,33 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
                   ),
                   calendarCarousel(),
                   Padding(
-                    padding: const EdgeInsets.only(top: 15, bottom: 30),
+                    padding: const EdgeInsets.only(top: 0, bottom: 30),
                     child: _location,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[_timeStart, _timeEnd],
-                  )
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Expanded(
+                          child: _timeStart,
+                        ),
+                        SizedBox(
+                          width: 30,
+                        ),
+                        Expanded(
+                          child: _timeEnd,
+                        )
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ),
       ),
-      bottomSheet: Container(
+      bottomNavigationBar: Container(
         width: double.infinity,
         color: ColorsPalette.accentColor,
         child: Padding(
@@ -143,7 +206,7 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
           child: GestureDetector(
             onTap: () {},
             child: Text(
-              "PRÓXIMO",
+              "CRIAR EVENTO",
               style: TextStyle(
                   color: ColorsPalette.textColorLight,
                   fontWeight: FontWeight.w700,

@@ -6,6 +6,7 @@ import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
 import 'package:mypresence/ui/widgets/list_details.dart';
 import 'package:mypresence/ui/widgets/navigation_drawer.dart';
 import 'package:mypresence/utils/colors_palette.dart';
+import 'package:mypresence/utils/transitions/fade_route.dart';
 
 class Home extends StatefulWidget {
   final BaseAuth auth;
@@ -149,22 +150,24 @@ class _HomeState extends State<Home> {
       Container(
         margin: EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
         child: ListTileItem(
-          eventName: 'First Event',
+          eventName: 'First Event Thiago',
           eventTime: '14:00',
           colorHeader: ColorsPalette.primaryColorLight,
           colorEventName: ColorsPalette.backgroundColorLight,
           colorEventTime: ColorsPalette.backgroundColorLight,
           divider: false,
           onTap: () {
+            // print('Clicked');
+
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ListDetails()),
+              FadeRoute(
+                page: ListDetails(),
+              ),
             );
           },
         ),
-        
       ),
-      
     );
 
     list.add(

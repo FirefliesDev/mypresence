@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mypresence/ui/activities/home_event_management.dart';
 import 'package:mypresence/ui/widgets/list_title_drawer.dart';
 import 'package:mypresence/utils/colors_palette.dart';
+import 'package:mypresence/utils/transitions/enter_exit_route.dart';
+import 'package:mypresence/utils/transitions/fade_route.dart';
 
 class NavigationDrawer extends StatelessWidget {
   // final PageController _pageController;
@@ -79,6 +82,19 @@ class NavigationDrawer extends StatelessWidget {
               ListTitleDrawer(
                 text: 'Gestão de Eventos',
                 icon: Icons.build,
+                onTap: () {
+                  Navigator.pop(context);
+
+                  Navigator.push(
+                    context,
+                    FadeRoute(
+                      page: HomeEventManagement(
+                        currentUser: user,
+                        onSignedOut: onSignedOut,
+                      ),
+                    ),
+                  );
+                },
               ),
               Container(
                 height: 1.25,

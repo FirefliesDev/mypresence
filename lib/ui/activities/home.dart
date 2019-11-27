@@ -55,7 +55,7 @@ class _HomeState extends State<Home> {
   Widget _buildAppBar() {
     return AppBar(
       title: Text(
-        'Home',
+        'Meus Eventos',
         style: TextStyle(color: ColorsPalette.textColorLight),
       ),
       iconTheme: IconThemeData(color: ColorsPalette.textColorLight),

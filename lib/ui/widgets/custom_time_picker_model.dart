@@ -5,11 +5,12 @@ class CustomTimePickerModel extends CommonPickerModel {
     return '$value'.padLeft(length, "0");
   }
 
-  CustomTimePickerModel({DateTime currentTime, LocaleType locale}) : super(locale: locale) {
+  CustomTimePickerModel({DateTime currentTime, LocaleType locale})
+      : super(locale: locale) {
     this.currentTime = currentTime ?? DateTime.now();
     this.setLeftIndex(this.currentTime.hour);
     this.setMiddleIndex(this.currentTime.minute);
-    this.setRightIndex(this.currentTime.second);
+    this.setRightIndex(0);
   }
 
   @override
@@ -58,8 +59,8 @@ class CustomTimePickerModel extends CommonPickerModel {
   DateTime finalTime() {
     return currentTime.isUtc
         ? DateTime.utc(currentTime.year, currentTime.month, currentTime.day,
-            this.currentLeftIndex(), this.currentMiddleIndex())
-        : DateTime(currentTime.year, currentTime.month, currentTime.day, this.currentLeftIndex(),
-            this.currentMiddleIndex() );
+            this.currentLeftIndex(), this.currentMiddleIndex(), this.currentRightIndex())
+        : DateTime(currentTime.year, currentTime.month, currentTime.day,
+            this.currentLeftIndex(), this.currentMiddleIndex(), this.currentRightIndex());
   }
 }

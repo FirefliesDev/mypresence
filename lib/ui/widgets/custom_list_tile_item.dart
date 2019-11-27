@@ -42,69 +42,72 @@ class ListTileItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      child: Card(
-        elevation: 5,
-        color: colorHeader,
-        child: Padding(
-          padding: const EdgeInsets.all(0.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              ListTile(
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      eventName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: colorEventName,
-                      ),
-                    ),
-                    Stack(
-                      alignment: AlignmentDirectional.center,
-                      children: <Widget>[
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: new BoxDecoration(
-                            color: ColorsPalette.accentColor,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        Text(
-                          count.toString() == 'null' ? '0' : count.toString(),
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: ColorsPalette.textColorLight),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Row(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Card(
+          elevation: 5,
+          color: colorHeader,
+          child: Padding(
+            padding: const EdgeInsets.all(0.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                ListTile(
+                  title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
-                        'Location',
+                        eventName,
                         style: TextStyle(
+                          fontWeight: FontWeight.w700,
                           color: colorEventName,
                         ),
                       ),
-                      Text(
-                        eventTime,
-                        style: TextStyle(
-                          color: colorEventTime,
-                        ),
+                      Stack(
+                        alignment: AlignmentDirectional.center,
+                        children: <Widget>[
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: new BoxDecoration(
+                              color: ColorsPalette.accentColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          Text(
+                            count.toString() == 'null' ? '0' : count.toString(),
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: ColorsPalette.textColorLight),
+                          )
+                        ],
                       )
                     ],
                   ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          'Location',
+                          style: TextStyle(
+                            color: colorEventName,
+                          ),
+                        ),
+                        Text(
+                          eventTime,
+                          style: TextStyle(
+                            color: colorEventTime,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

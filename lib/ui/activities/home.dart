@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mypresence/authentication/base_auth.dart';
 import 'package:mypresence/ui/widgets/custom_expansion_tile.dart' as cet;
 import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
+import 'package:mypresence/ui/widgets/list_details.dart';
 import 'package:mypresence/ui/widgets/navigation_drawer.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 
@@ -75,7 +76,6 @@ class _HomeState extends State<Home> {
   /// List of Occurrences (Widget)
   List<Widget> _listOccurrencesWidgets() {
     List<Widget> list = new List();
-
     list.add(
       Container(
         // margin: new EdgeInsets.only(bottom: 10),
@@ -155,8 +155,16 @@ class _HomeState extends State<Home> {
           colorEventName: ColorsPalette.backgroundColorLight,
           colorEventTime: ColorsPalette.backgroundColorLight,
           divider: false,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ListDetails()),
+            );
+          },
         ),
+        
       ),
+      
     );
 
     list.add(

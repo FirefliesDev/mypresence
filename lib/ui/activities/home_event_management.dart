@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mypresence/authentication/authentication.dart';
 import 'package:mypresence/ui/activities/create_event_name.dart';
 import 'package:mypresence/ui/widgets/navigation_drawer.dart';
 import 'package:mypresence/utils/colors_palette.dart';
@@ -17,6 +18,16 @@ class HomeEventManagement extends StatefulWidget {
 }
 
 class _HomeEventManagementState extends State<HomeEventManagement> {
+  // FirebaseUser _currentUser;
+  // VoidCallback _onSignedOut;
+  // @override
+  // void initState() async {
+  //   super.initState();
+  //   final user = await Authentication().currentUser();
+  //   this._currentUser = user;
+  //   _onSignedOut = () {};
+  // }
+
   @override
   Widget build(BuildContext context) {
     return _buildScaffold();
@@ -49,7 +60,10 @@ class _HomeEventManagementState extends State<HomeEventManagement> {
               Navigator.push(
                 context,
                 SlideTopRoute(
-                  page: CreateEventName(),
+                  page: CreateEventName(
+                    currentUser: widget.currentUser,
+                    onSignedOut: widget.onSignedOut,
+                  ),
                 ),
               );
             }));

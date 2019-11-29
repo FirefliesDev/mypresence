@@ -1,9 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mypresence/ui/activities/create_event_occurrences.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 import 'package:mypresence/utils/transitions/fade_route.dart';
 
 class CreateEventName extends StatefulWidget {
+  final VoidCallback onSignedOut;
+  final FirebaseUser currentUser;
+
+  CreateEventName({this.currentUser, this.onSignedOut});
+
   @override
   _CreateEventNameState createState() => _CreateEventNameState();
 }
@@ -88,6 +94,8 @@ class _CreateEventNameState extends State<CreateEventName> {
                   FadeRoute(
                     page: CreateEventOccurrences(
                       eventName: _eventNameValue,
+                      currentUser: widget.currentUser,
+                      onSignedOut: widget.onSignedOut,
                     ),
                   ),
                 );

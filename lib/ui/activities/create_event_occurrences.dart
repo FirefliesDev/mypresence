@@ -1,14 +1,24 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:mypresence/database/firebase_service.dart';
+import 'package:mypresence/model/event.dart' as model;
+import 'package:mypresence/model/item.dart';
+import 'package:mypresence/model/occurrence.dart';
+import 'package:mypresence/ui/activities/home_event_management.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 
 import 'package:intl/intl.dart';
+import 'package:mypresence/utils/transitions/fade_route.dart';
 
 class CreateEventOccurrences extends StatefulWidget {
   final String eventName;
-  CreateEventOccurrences({this.eventName});
+  final VoidCallback onSignedOut;
+  final FirebaseUser currentUser;
+
+  CreateEventOccurrences({this.eventName, this.currentUser, this.onSignedOut});
   @override
   _CreateEventOccurrencesState createState() => _CreateEventOccurrencesState();
 }
@@ -212,7 +222,7 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: GestureDetector(
-            onTap: () {
+            onTap: () async {
               if (isValidForm()) {
                 saveDataForm();
                 print('clicked ${widget.eventName}');
@@ -220,6 +230,29 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
                 print('clicked $_timeStartValue');
                 print('clicked $_timeEndValue');
                 print('clicked ${DateFormat('yyyy-MM-dd').format(_date)}');
+
+                //_create();
+                final eventId = await _createEvent(model.Event(
+                    title: widget.eventName, descripton: "Custom Description"));
+
+                List<Occurrence> occurrences = new List();
+                occurrences.add(Occurrence(
+                    local: _localValue,
+                    date: DateFormat('yyyy-MM-dd').format(_date),
+                    timeStart: _timeStartValue,
+                    timeEnd: _timeEndValue));
+
+                await _createEventOccurrences(eventId, occurrences);
+
+                Navigator.push(
+                  context,
+                  FadeRoute(
+                    page: HomeEventManagement(
+                      currentUser: widget.currentUser,
+                      onSignedOut: widget.onSignedOut,
+                    ),
+                  ),
+                );
               }
             },
             child: Text(
@@ -256,6 +289,34 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
       ),
       iconTheme: IconThemeData(color: ColorsPalette.textColorLight),
     );
+  }
+
+  ///
+  Future<void> _create() async {
+    await FirebaseService.create(
+        Item(title: 'Item', description: 'My description'));
+
+    print('event created');
+  }
+
+  ///
+  Future<String> _createEvent(model.Event item) async {
+    final eventId = await FirebaseService.createEvent(item);
+    print('event created');
+    return eventId;
+  }
+
+  ///
+  Future<void> _createOccurrence(Occurrence item) async {
+    await FirebaseService.createOccurrence(item);
+    print('occurrence created');
+  }
+
+  ///
+  Future<void> _createEventOccurrences(
+      String eventId, List<Occurrence> occurrences) async {
+    await FirebaseService.createEventOccurrences(eventId, occurrences);
+    print('event occurrences created');
   }
 
   ///

@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mypresence/authentication/base_auth.dart';
+import 'package:mypresence/ui/activities/event_details.dart';
 import 'package:mypresence/ui/widgets/custom_expansion_tile.dart' as cet;
 import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
-import 'package:mypresence/ui/widgets/list_details.dart';
+
 import 'package:mypresence/ui/widgets/navigation_drawer.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 import 'package:mypresence/utils/transitions/fade_route.dart';
@@ -152,19 +153,20 @@ class _HomeState extends State<Home> {
         child: ListTileItem(
           eventName: 'First Event Thiago',
           eventTime: '14:00',
+          location: 'location',
           colorHeader: ColorsPalette.primaryColorLight,
           colorEventName: ColorsPalette.backgroundColorLight,
           colorEventTime: ColorsPalette.backgroundColorLight,
           divider: false,
           onTap: () {
-            // print('Clicked');
+            print('Clicked');
 
-            Navigator.push(
-              context,
-              FadeRoute(
-                page: ListDetails(),
-              ),
-            );
+            // Navigator.push(
+            //   context,
+            //   FadeRoute(
+            //     page: EventDetails(),
+            //   ),
+            // );
           },
         ),
       ),
@@ -176,6 +178,7 @@ class _HomeState extends State<Home> {
         child: ListTileItem(
           eventName: 'Second Event',
           eventTime: '14:00',
+          location: 'location',
           count: 35,
           colorHeader: ColorsPalette.primaryColorLight,
           colorEventName: ColorsPalette.backgroundColorLight,

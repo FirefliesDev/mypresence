@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mypresence/authentication/base_auth.dart';
 import 'package:mypresence/ui/activities/home.dart';
 import 'package:mypresence/ui/activities/sign_in.dart';
+import 'package:mypresence/ui/widgets/list_details.dart';
 
 enum AuthStatus { signIn, notSignIn }
 
@@ -33,6 +34,7 @@ class _RootActivitiesState extends State<RootActivities> {
   Widget build(BuildContext context) {
     switch (_authStatus) {
       case AuthStatus.signIn:
+        // return ListDetails();
         return Home(
             auth: widget.auth, onSignedOut: _signedOut, currentUser: _user);
       default:

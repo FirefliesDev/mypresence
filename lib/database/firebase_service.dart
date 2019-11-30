@@ -12,60 +12,90 @@ class FirebaseService {
   static Future<String> createEvent(model.Event item) async {
     final _itemRef = _databaseRef.child(FirebaseConstant.event);
     final _id = _itemRef.push().key;
-
+    item.id = _id;
     _itemRef.child(_id).set(item.toJson());
     return _id;
+  }
+
+  /// Read Event
+  static Future<List<model.Event>> getEvents() async {
+    List<model.Event> items = [];
+    final _itemRef = _databaseRef.child(FirebaseConstant.event);
+    await _itemRef.once().then((DataSnapshot snapshot) {
+      final value = snapshot.value as Map;
+      for (final key in value.keys) {
+        model.Event i = model.Event.fromJson(snapshot.value[key]);
+        items.add(i);
+      }
+      print(items.toString());
+    });
+    return items;
   }
 
   /// Create Occurrence
   static Future<void> createOccurrence(Occurrence item) async {
     final _itemRef = _databaseRef.child(FirebaseConstant.occurrence);
     final _id = _itemRef.push().key;
-
+    item.id = _id;
     _itemRef.child(_id).set(item.toJson());
   }
+
+  /// Read Event
+  static Future<List<Occurrence>> getEventOccurrences(String eventId) async {
+    List<Occurrence> items = [];
+    final _itemRef =
+        _databaseRef.child(FirebaseConstant.eventOccurrences).child(eventId);
+    await _itemRef.once().then((DataSnapshot snapshot) {
+      final value = snapshot.value as Map;
+      for (final key in value.keys) {
+        Occurrence i = Occurrence.fromJson(snapshot.value[key]);
+        items.add(i);
+        print(i.toJson());
+      }
+      print(items.toString());
+    });
+    return items;
+  }
+
+  /*
+fun getDurationsByEventID(callback: FirebaseEventCallback, eventID: String) {
+            val durations = mutableListOf<Duration>()
+            val databaseReference = FirebaseDatabase.getInstance().reference
+            val eventDuration = databaseReference
+                .child(FirebaseConstant.NO.EVENT_DURATION)
+                .child(eventID)
+
+            eventDuration.addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {}
+
+                override fun onDataChange(snapShot: DataSnapshot) {
+                    durations.clear()
+                    for (d in snapShot.children) {
+                        val duration = Duration(
+                            d.getValue(Duration::class.java)!!.date,
+                            d.getValue(Duration::class.java)!!.location,
+                            d.getValue(Duration::class.java)!!.timeStart,
+                            d.getValue(Duration::class.java)!!.timeEnd,
+                            d.getValue(Duration::class.java)!!.qrCode
+                        )
+                        duration.id = d.key!!
+                        durations.add(duration)
+                    }
+                    callback.onCallBack(durations)
+                }
+            })
+        }
+  */
 
   /// Create Occurrence
   static Future<void> createEventOccurrences(
       String eventId, List<Occurrence> occurrences) async {
     final _itemRef =
         _databaseRef.child(FirebaseConstant.eventOccurrences).child(eventId);
-
-    print('Before forEach');
     occurrences.forEach((item) {
       final occurrenceId = _itemRef.push().key;
       _itemRef.child(occurrenceId).set(item.toJson());
     });
-    print(occurrences.length);
-    print('After forEach');
-
-    // final _id = _itemRef.push().key;
-
-    // _itemRef.child(_id).set(item.toJson());
-
-    /*
-  val eventDurationReference = databaseReference
-                .child(FirebaseConstant.NO.EVENT_DURATION)
-                .child(eventID)
-
-            for (duration in durations) {
-                val durationID = eventDurationReference.push().key
-                val durationPresenceReference = databaseReference
-                    .child(FirebaseConstant.NO.DURATION_PRESENCE)
-                    .child(durationID!!)
-
-                eventDurationReference
-                    .child(durationID)
-                    .setValue(duration)
-
-                for (user in users) {
-                    val newRef = durationPresenceReference.child(user.id)
-                    newRef.child("name").setValue(user.name)
-                    newRef.child("lastName").setValue(user.lastName)
-                    newRef.child("present").setValue(false)
-                }
-            }
-    */
   }
 
   ///

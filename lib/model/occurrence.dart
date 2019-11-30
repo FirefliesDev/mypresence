@@ -1,5 +1,5 @@
 class Occurrence {
-  int id;
+  String id;
   String local;
   String date;
   String timeStart;
@@ -7,7 +7,7 @@ class Occurrence {
 
   Occurrence({this.id, this.local, this.date, this.timeStart, this.timeEnd});
 
-  Occurrence.fromJson(Map<String, dynamic> json) {
+  Occurrence.fromJson(Map<dynamic, dynamic> json) {
     id = json['id'];
     local = json['local'];
     date = json['date'];
@@ -15,8 +15,8 @@ class Occurrence {
     timeEnd = json['timeEnd'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+  Map<dynamic, dynamic> toJson() {
+    final Map<dynamic, dynamic> data = new Map<dynamic, dynamic>();
     data['id'] = this.id;
     data['local'] = this.local;
     data['date'] = this.date;

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mypresence/authentication/base_auth.dart';
 import 'package:mypresence/ui/activities/home.dart';
 import 'package:mypresence/ui/activities/sign_in.dart';
-import 'package:mypresence/ui/widgets/list_details.dart';
+
 
 enum AuthStatus { signIn, notSignIn }
 

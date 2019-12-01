@@ -1,13 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mypresence/authentication/base_auth.dart';
-import 'package:mypresence/ui/activities/event_details.dart';
 import 'package:mypresence/ui/widgets/custom_expansion_tile.dart' as cet;
 import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
 
 import 'package:mypresence/ui/widgets/navigation_drawer.dart';
 import 'package:mypresence/utils/colors_palette.dart';
-import 'package:mypresence/utils/transitions/fade_route.dart';
 
 class Home extends StatefulWidget {
   final BaseAuth auth;
@@ -21,6 +19,95 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  //Dialog Eventos
+  void _showDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Row(
+              children: <Widget>[
+                Icon(
+                  Icons.location_on,
+                  color: Colors.red,
+                  size: 25,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: Text("T12 - B202"),
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        child: Icon(Icons.schedule,
+                            color: ColorsPalette.primaryColor, size: 22),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "Fri, Nov 29",
+                            style: TextStyle(
+                              inherit: true,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            "17:00",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            content: new Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    'Palestra - Projeto Ágil',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    'Palestra sobre design, onde iremos abordar sobre todos '
+                    'os tipos de prototipação',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+                  ),
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              // usually buttons at the bottom of the dialog
+              new FlatButton(
+                child: new Text("Close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return _buildScaffold();
@@ -51,7 +138,9 @@ class _HomeState extends State<Home> {
             elevation: 0.0,
             child: Icon(Icons.camera_alt),
             backgroundColor: ColorsPalette.accentColor,
-            onPressed: () {}));
+            onPressed: () {
+              print('Clicked');
+            }));
   }
 
   ///
@@ -167,6 +256,7 @@ class _HomeState extends State<Home> {
             //     page: EventDetails(),
             //   ),
             // );
+            _showDialog();
           },
         ),
       ),

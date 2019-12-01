@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mypresence/database/firebase_service.dart';
 import 'package:mypresence/model/event.dart';
 import 'package:mypresence/ui/activities/create_event_name.dart';
-import 'package:mypresence/ui/activities/event_details.dart';
+import 'package:mypresence/ui/activities/event_details_management.dart';
 import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
 import 'package:mypresence/ui/widgets/navigation_drawer.dart';
 import 'package:mypresence/utils/colors_palette.dart';
@@ -112,6 +112,8 @@ class _HomeEventManagementState extends State<HomeEventManagement> {
                 FadeRoute(
                   page: EventDetails(
                     event: events[index],
+                    currentUser: widget.currentUser,
+                    onSignedOut: widget.onSignedOut,
                   ),
                 ),
               );

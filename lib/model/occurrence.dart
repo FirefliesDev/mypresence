@@ -4,8 +4,15 @@ class Occurrence {
   String date;
   String timeStart;
   String timeEnd;
+  String qrCode;
 
-  Occurrence({this.id, this.local, this.date, this.timeStart, this.timeEnd});
+  Occurrence(
+      {this.id,
+      this.local,
+      this.date,
+      this.timeStart,
+      this.timeEnd,
+      this.qrCode});
 
   Occurrence.fromJson(Map<dynamic, dynamic> json) {
     id = json['id'];
@@ -13,6 +20,7 @@ class Occurrence {
     date = json['date'];
     timeStart = json['timeStart'];
     timeEnd = json['timeEnd'];
+    qrCode = json['qrCode'];
   }
 
   Map<dynamic, dynamic> toJson() {
@@ -22,6 +30,7 @@ class Occurrence {
     data['date'] = this.date;
     data['timeStart'] = this.timeStart;
     data['timeEnd'] = this.timeEnd;
+    data['qrCode'] = this.qrCode;
     return data;
   }
 }

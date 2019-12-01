@@ -4,7 +4,6 @@ import 'package:mypresence/model/item.dart';
 import 'package:mypresence/model/occurrence.dart';
 import 'package:mypresence/utils/constants.dart';
 
-/// Stores all the custom colors used in this application
 class FirebaseService {
   static var _databaseRef = FirebaseDatabase.instance.reference();
 
@@ -17,7 +16,7 @@ class FirebaseService {
     return _id;
   }
 
-  /// Read Event
+  /// Get Events
   static Future<List<model.Event>> getEvents() async {
     List<model.Event> items = [];
     final _itemRef = _databaseRef.child(FirebaseConstant.event);
@@ -40,7 +39,7 @@ class FirebaseService {
     _itemRef.child(_id).set(item.toJson());
   }
 
-  /// Read Event
+  /// Get Event's Occurrences
   static Future<List<Occurrence>> getEventOccurrences(String eventId) async {
     List<Occurrence> items = [];
     final _itemRef =
@@ -57,43 +56,25 @@ class FirebaseService {
     return items;
   }
 
-  /*
-fun getDurationsByEventID(callback: FirebaseEventCallback, eventID: String) {
-            val durations = mutableListOf<Duration>()
-            val databaseReference = FirebaseDatabase.getInstance().reference
-            val eventDuration = databaseReference
-                .child(FirebaseConstant.NO.EVENT_DURATION)
-                .child(eventID)
+  /// Update Occurrence
+  static Future<void> updateEventOccurrence(
+      String eventId, Occurrence item) async {
+    final _itemRef = _databaseRef
+        .child(FirebaseConstant.eventOccurrences)
+        .child(eventId)
+        .child(item.id);
+    // Map<String, dynamic> newValue = item.toJson();
+    _itemRef.update(item.toJson().cast<String, dynamic>());
+  }
 
-            eventDuration.addValueEventListener(object : ValueEventListener {
-                override fun onCancelled(p0: DatabaseError) {}
-
-                override fun onDataChange(snapShot: DataSnapshot) {
-                    durations.clear()
-                    for (d in snapShot.children) {
-                        val duration = Duration(
-                            d.getValue(Duration::class.java)!!.date,
-                            d.getValue(Duration::class.java)!!.location,
-                            d.getValue(Duration::class.java)!!.timeStart,
-                            d.getValue(Duration::class.java)!!.timeEnd,
-                            d.getValue(Duration::class.java)!!.qrCode
-                        )
-                        duration.id = d.key!!
-                        durations.add(duration)
-                    }
-                    callback.onCallBack(durations)
-                }
-            })
-        }
-  */
-
-  /// Create Occurrence
+  /// Create EventOccurrence
   static Future<void> createEventOccurrences(
       String eventId, List<Occurrence> occurrences) async {
     final _itemRef =
         _databaseRef.child(FirebaseConstant.eventOccurrences).child(eventId);
     occurrences.forEach((item) {
       final occurrenceId = _itemRef.push().key;
+      item.id = occurrenceId;
       _itemRef.child(occurrenceId).set(item.toJson());
     });
   }

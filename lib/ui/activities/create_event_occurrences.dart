@@ -212,13 +212,15 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
                     qrCode: ""));
 
                 if (widget.event == null) {
-                  _eventId = await _createEvent(model.Event(
+                  model.Event item = model.Event(
                       title: widget.eventName,
-                      descripton: "Custom Description"));
-
+                      descripton: "Custom Description");
+                  _eventId = await _createEvent(item);
+                  item.id = _eventId;
                   await _createEventOccurrences(_eventId, occurrences);
+                  await _createOwnerEvents(widget.currentUser.uid, item);
 
-                  Navigator.push(
+                  await Navigator.push(
                     context,
                     FadeRoute(
                       page: HomeEventManagement(
@@ -326,6 +328,11 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
   Future<void> _createEventOccurrences(
       String eventId, List<Occurrence> occurrences) async {
     await FirebaseService.createEventOccurrences(eventId, occurrences);
+  }
+
+  /// Create OwnerEvents
+  Future<void> _createOwnerEvents(String userId, model.Event item) async {
+    await FirebaseService.createOwnerEvents(userId, item);
   }
 
   /// Check if form is valid

@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mypresence/authentication/base_auth.dart';
+import 'package:mypresence/database/firebase_service.dart';
+import 'package:mypresence/model/user.dart';
 import 'package:mypresence/ui/widgets/google_button.dart';
 import 'package:mypresence/ui/widgets/progress_indicator_modal.dart';
 import 'package:mypresence/utils/colors_palette.dart';
@@ -196,7 +198,14 @@ class _SignInState extends State<SignIn> {
         isLoading = true;
       });
       debugPrint('Logging in with Google...');
-      widget.onSignedIn(await widget.auth.signInWithGoogle());
+      FirebaseUser _firebaseUser = await widget.auth.signInWithGoogle();
+      FirebaseService.createUser(User(
+          id: _firebaseUser.uid,
+          displayName: _firebaseUser.displayName,
+          photoUrl: _firebaseUser.photoUrl,
+          identifier: _firebaseUser.email,
+          provider: 'Google'));
+      widget.onSignedIn(_firebaseUser);
     } catch (e) {
       debugPrint('Error Google: ' + e.toString());
     } finally {

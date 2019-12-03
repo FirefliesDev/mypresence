@@ -1,6 +1,11 @@
+import 'package:barcode_scan/barcode_scan.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mypresence/authentication/base_auth.dart';
+import 'package:mypresence/database/firebase_service.dart';
+import 'package:mypresence/model/event.dart';
+import 'package:mypresence/model/user.dart';
 import 'package:mypresence/ui/widgets/custom_expansion_tile.dart' as cet;
 import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
 
@@ -19,6 +24,15 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  String _resultQrCode = "";
+
+  @override
+  void initState() {
+    super.initState();
+    substringBefore(
+        "mypresence", "-Lv3QyMEVTvu2MPA1s1Imypresence-Lv3QB9cARNmw64oYMa6");
+  }
+
   //Dialog Eventos
   void _showDialog() {
     showDialog(
@@ -139,7 +153,7 @@ class _HomeState extends State<Home> {
             child: Icon(Icons.camera_alt),
             backgroundColor: ColorsPalette.accentColor,
             onPressed: () {
-              print('Clicked');
+              _scanQrCode();
             }));
   }
 
@@ -279,5 +293,78 @@ class _HomeState extends State<Home> {
     );
 
     return list;
+  }
+
+  /// Scan QR Code
+  Future<void> _scanQrCode() async {
+    try {
+      String qrResult = await BarcodeScanner.scan();
+      final qrOccurrenceId = substringBefore("mypresence", _resultQrCode);
+
+      final qrEventId = substringAfter("mypresence", _resultQrCode);
+
+      final qrEvent = await FirebaseService.getEventById(qrEventId);
+
+      setState(() {
+        _resultQrCode = qrResult;
+        // TODO: Get Occurrence ID
+        //substringBefore
+
+        // TODO: Insert Event_Participants
+        _createEventParticipants(
+            qrEventId,
+            User(
+                id: widget.currentUser.uid,
+                displayName: widget.currentUser.displayName,
+                identifier: widget.currentUser.email,
+                photoUrl: widget.currentUser.photoUrl,
+                provider: 'Google'));
+
+        // TODO: Insert Participant_Events
+        _createParticipantEvents(widget.currentUser.uid, qrEvent);
+
+        // TODO: Insert Occurrence_Presence
+
+        print('result qr code ' + _resultQrCode);
+      });
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.CameraAccessDenied) {
+        setState(() {
+          _resultQrCode = "Camera permission was denied";
+        });
+      } else {
+        setState(() {
+          _resultQrCode = "Unknown Error: $e";
+        });
+      }
+    } on FormatException {
+      setState(() {
+        _resultQrCode = "You pressed the back button before scanning anything";
+      });
+    } catch (e) {
+      setState(() {
+        _resultQrCode = "Unknown Error: $e";
+      });
+    }
+  }
+
+  /// Create OwnerEvents
+  Future<void> _createEventParticipants(String eventId, User user) async {
+    await FirebaseService.createEventParticipants(eventId, user);
+  }
+
+  /// Create ParticipantEvents
+  Future<void> _createParticipantEvents(String userId, Event item) async {
+    await FirebaseService.createParticipantEvents(userId, item);
+  }
+
+  String substringBefore(String delimiter, String text) {
+    var index = text.indexOf(delimiter); // 13
+    return text.substring(index + delimiter.length, text.length);
+  }
+
+  String substringAfter(String delimiter, String text) {
+    var index = text.indexOf(delimiter);
+    return text.substring(index + delimiter.length, text.length);
   }
 }

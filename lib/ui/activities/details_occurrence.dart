@@ -283,7 +283,7 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
   void _generateQrCode() {
     setState(() {
       this._showQrCode = true;
-      this._qrCodeValue = '${widget.occurrence.id}mypresence';
+      this._qrCodeValue = '${widget.occurrence.id}mypresence${widget.event.id}';
     });
     Occurrence item = widget.occurrence;
     item.qrCode = _qrCodeValue;

@@ -36,13 +36,16 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
   void initState() {
     super.initState();
     if (widget.occurrence.qrCode == "") {
-      setState(() {
-        this._showQrCode = false;
-      });
+      print('generated_database');
+      _generateQrCode();
+      // setState(() {
+      //   this._showQrCode = false;
+      // });
     } else {
       setState(() {
-        this._showQrCode = true;
-        this._qrCodeValue = '${widget.occurrence.id}mypresence';
+        // this._showQrCode = true;
+        print('created qrcode widget');
+        this._qrCodeValue = '${widget.occurrence.id}mypresence${widget.event.id}';
       });
     }
   }
@@ -119,114 +122,6 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
                     ),
                   ],
                 ),
-
-                // Row(
-                //   children: <Widget>[
-                //     Expanded(
-                //       child: Card(
-                //         child: Column(
-                //           children: <Widget>[
-                //             ListTile(
-                //               leading: Icon(Icons.schedule),
-                //               title: Text(
-                //                 capitalize(Jiffy(widget.occurrence.date).MMMEd),
-                //                 // Jiffy(widget.occurrence.date).yMMMMd,
-                //                 // widget.occurrence.date,
-                //                 style: TextStyle(
-                //                   inherit: true,
-                //                   fontWeight: FontWeight.w400,
-                //                   fontSize: 16,
-                //                 ),
-                //               ),
-                //               subtitle: Text(
-                //                 widget.occurrence.timeStart,
-                //                 style: TextStyle(
-                //                   fontWeight: FontWeight.w800,
-                //                   fontSize: 22,
-                //                 ),
-                //               ),
-                //             )
-                //           ],
-                //         ),
-                //       ),
-                //       // child: Container(
-                //       //   margin: EdgeInsets.fromLTRB(15, 15, 3, 5),
-                //       //   height: 80.0,
-                //       //   child: Row(
-                //       //     children: <Widget>[
-                //       //       Container(
-                //       //           margin: EdgeInsets.symmetric(horizontal: 15),
-                //       //           width: 30.0,
-                //       //           height: 30.0,
-                //       //           child: Icon(Icons.schedule)),
-                //       //       Column(
-                //       //         mainAxisAlignment: MainAxisAlignment.center,
-                //       //         crossAxisAlignment: CrossAxisAlignment.start,
-                //       //         children: <Widget>[
-                //       //           Text(
-                //       //             capitalize(Jiffy(widget.occurrence.date).MMMEd),
-                //       //             // Jiffy(widget.occurrence.date).yMMMMd,
-                //       //             // widget.occurrence.date,
-                //       //             style: TextStyle(
-                //       //               inherit: true,
-                //       //               fontWeight: FontWeight.w400,
-                //       //               fontSize: 16,
-                //       //             ),
-                //       //           ),
-                //       //           Text(
-                //       //             widget.occurrence.timeStart,
-                //       //             style: TextStyle(
-                //       //               fontWeight: FontWeight.w800,
-                //       //               fontSize: 22,
-                //       //             ),
-                //       //           ),
-                //       //         ],
-                //       //       ),
-                //       //     ],
-                //       //   ),
-                //       //   decoration: new BoxDecoration(color: Colors.black12),
-                //       // ),
-                //     ),
-                //     Expanded(
-                //       child: Container(
-                //         margin: EdgeInsets.fromLTRB(3, 15, 15, 5),
-                //         height: 80.0,
-                //         child: Row(
-                //           children: <Widget>[
-                //             Container(
-                //               margin: EdgeInsets.symmetric(horizontal: 15),
-                //               width: 30.0,
-                //               height: 30.0,
-                //               child: Icon(Icons.schedule),
-                //             ),
-                //             Column(
-                //               mainAxisAlignment: MainAxisAlignment.center,
-                //               crossAxisAlignment: CrossAxisAlignment.start,
-                //               children: <Widget>[
-                //                 Text(
-                //                   capitalize(Jiffy(widget.occurrence.date).MMMEd),
-                //                   style: TextStyle(
-                //                     inherit: true,
-                //                     fontWeight: FontWeight.w400,
-                //                     fontSize: 16,
-                //                   ),
-                //                 ),
-                //                 Text(
-                //                   widget.occurrence.timeEnd,
-                //                   style: TextStyle(
-                //                     fontWeight: FontWeight.w800,
-                //                     fontSize: 22,
-                //                   ),
-                //                 ),
-                //               ],
-                //             ),
-                //           ],
-                //         ),
-                //         decoration: new BoxDecoration(color: Colors.black12),
-                //       ),
-                //     ),
-                //   ],
-                // ),
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 25, horizontal: 25),
@@ -236,30 +131,27 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
                   ),
                 ),
-                Visibility(
-                  child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: ButtonTheme(
-                      minWidth: 200.0,
-                      height: 45.0,
-                      child: RaisedButton(
-                        onPressed: _generateQrCode,
-                        color: ColorsPalette.accentColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: new BorderRadius.circular(25.0),
-                        ),
-                        child: const Text('Gerar QRCode',
-                            style:
-                                TextStyle(fontSize: 20, color: Colors.white)),
-                      ),
-                    ),
-                  ),
-                  visible: !_showQrCode,
-                ),
-                Visibility(
-                  child: _buildQrCode(value: _qrCodeValue),
-                  visible: _showQrCode,
-                ),
+                // Visibility(
+                //   child: Padding(
+                //     padding: const EdgeInsets.all(15.0),
+                //     child: ButtonTheme(
+                //       minWidth: 200.0,
+                //       height: 45.0,
+                //       child: RaisedButton(
+                //         onPressed: _generateQrCode,
+                //         color: ColorsPalette.accentColor,
+                //         shape: RoundedRectangleBorder(
+                //           borderRadius: new BorderRadius.circular(25.0),
+                //         ),
+                //         child: const Text('Gerar QRCode',
+                //             style:
+                //                 TextStyle(fontSize: 20, color: Colors.white)),
+                //       ),
+                //     ),
+                //   ),
+                //   visible: !_showQrCode,
+                // ),
+                _buildQrCode(value: _qrCodeValue),
               ],
             ),
           ),

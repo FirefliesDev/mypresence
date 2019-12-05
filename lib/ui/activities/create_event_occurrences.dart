@@ -217,7 +217,7 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
                       descripton: "Custom Description");
                   _eventId = await _createEvent(item);
                   item.id = _eventId;
-                  await _createEventOccurrences(_eventId, occurrences);
+                  await _createEventOccurrences(item, occurrences);
                   await _createOwnerEvents(widget.currentUser.uid, item);
 
                   await Navigator.push(
@@ -232,7 +232,7 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
                 } else {
                   _eventId = widget.event.id;
 
-                  await _createEventOccurrences(_eventId, occurrences);
+                  await _createEventOccurrences(widget.event, occurrences);
 
                   Navigator.push(
                     context,
@@ -326,8 +326,8 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
 
   /// Create Occurrences
   Future<void> _createEventOccurrences(
-      String eventId, List<Occurrence> occurrences) async {
-    await FirebaseService.createEventOccurrences(eventId, occurrences);
+      model.Event event, List<Occurrence> occurrences) async {
+    await FirebaseService.createEventOccurrences(event, occurrences);
   }
 
   /// Create OwnerEvents

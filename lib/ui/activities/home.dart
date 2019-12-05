@@ -2,9 +2,11 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:mypresence/authentication/base_auth.dart';
 import 'package:mypresence/database/firebase_service.dart';
 import 'package:mypresence/model/event.dart';
+import 'package:mypresence/model/occurrence.dart';
 import 'package:mypresence/model/user.dart';
 import 'package:mypresence/ui/widgets/custom_expansion_tile.dart' as cet;
 import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
@@ -25,12 +27,15 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String _resultQrCode = "";
+  List<Event> events = new List();
+  Map<dynamic, dynamic> jsonOccurrenceByDate;
+  List<Occurrence> occurrences = new List();
+  var _future;
 
   @override
   void initState() {
     super.initState();
-    substringBefore(
-        "mypresence", "-Lv3QyMEVTvu2MPA1s1Imypresence-Lv3QB9cARNmw64oYMa6");
+    _future = FirebaseService.getOccurrencesGroupByDate(widget.currentUser.uid);
   }
 
   //Dialog Eventos
@@ -138,16 +143,32 @@ class _HomeState extends State<Home> {
           photoUrl: widget.currentUser.photoUrl,
           onSignedOut: _signedOut,
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            child: Container(
-              // margin: new EdgeInsets.all(0.0),
-              child: Column(
-                children: _listOccurrencesWidgets(),
-              ),
-            ),
-          ),
+        body: FutureBuilder(
+          future: _future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              jsonOccurrenceByDate = snapshot.data;
+              return _buildList();
+            } else {
+              return Center(
+                child: CircularProgressIndicator(
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(ColorsPalette.primaryColor),
+                ),
+              );
+            }
+          },
         ),
+        // SingleChildScrollView(
+        //   child: Container(
+        //     child: Container(
+        //       // margin: new EdgeInsets.all(0.0),
+        //       child: Column(
+        //         children: _listOccurrencesWidgets(),
+        //       ),
+        //     ),
+        //   ),
+        // ),
         floatingActionButton: FloatingActionButton(
             elevation: 0.0,
             child: Icon(Icons.camera_alt),
@@ -178,119 +199,95 @@ class _HomeState extends State<Home> {
     }
   }
 
-  /// List of Occurrences (Widget)
-  List<Widget> _listOccurrencesWidgets() {
-    List<Widget> list = new List();
-    list.add(
-      Container(
-        // margin: new EdgeInsets.only(bottom: 10),
-        color: ColorsPalette.backgroundColorSnow,
-        child: Column(
-          children: <Widget>[
-            Container(
-              child: cet.ExpansionTile(
-                title: Container(
-                  child: Text(
-                    'Thursday, July 1',
-                    style: TextStyle(
-                      color: ColorsPalette.textColorDark,
+  ///
+  Widget _buildList() {
+    return ListView.builder(
+      // padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+      itemCount: jsonOccurrenceByDate == null ? 0 : jsonOccurrenceByDate.length,
+      itemBuilder: (context, index) {
+        var teste = jsonOccurrenceByDate.entries.toList()[index];
+        var conteudo = teste.value;
+        List<Occurrence> occurences = new List();
+
+        conteudo.forEach((k, v) {
+          Occurrence item = Occurrence.fromJson(v);
+          occurences.add(item);
+        });
+
+        print(occurences.length);
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+          child: Container(
+            // margin: new EdgeInsets.only(bottom: 10),
+            color: ColorsPalette.backgroundColorSnow,
+            child: Column(
+              children: <Widget>[
+                Container(
+                  child: cet.ExpansionTile(
+                    title: Container(
+                      child: Text(
+                        Jiffy(jsonOccurrenceByDate.keys.toList()[index])
+                            .MMMMEEEEd,
+                        style: TextStyle(
+                          color: ColorsPalette.textColorDark,
+                        ),
+                      ),
                     ),
+                    headerBackgroundColor: ColorsPalette.accentColor,
+                    backgroundColor: Colors.white,
+                    iconColor: Colors.black,
+                    children: _listEventsWidgets(itens: occurences),
                   ),
                 ),
-                headerBackgroundColor: ColorsPalette.accentColor,
-                backgroundColor: Colors.white,
-                iconColor: Colors.black,
-                children: _listEventsWidgets(),
-              ),
+                Divider(
+                  color: ColorsPalette.textColorDark90,
+                  height: 0,
+                )
+              ],
             ),
-            Divider(
-              color: ColorsPalette.textColorDark90,
-              height: 0,
-            )
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
-
-    list.add(
-      Container(
-        // margin: new EdgeInsets.only(bottom: 10),
-        color: ColorsPalette.backgroundColorSnow,
-        child: Column(
-          children: <Widget>[
-            Container(
-              child: cet.ExpansionTile(
-                title: Container(
-                  child: Text(
-                    'Thursday, July 1',
-                    style: TextStyle(
-                      color: ColorsPalette.textColorDark,
-                    ),
-                  ),
-                ),
-                headerBackgroundColor: ColorsPalette.accentColor,
-                backgroundColor: Colors.white,
-                iconColor: Colors.black,
-                children: _listEventsWidgets(),
-              ),
-            ),
-            Divider(
-              color: ColorsPalette.textColorDark90,
-              height: 0,
-            )
-          ],
-        ),
-      ),
-    );
-
-    return list;
   }
 
   /// List of Events (Widget)
-  List<Widget> _listEventsWidgets() {
+  List<Widget> _listEventsWidgets({List<Occurrence> itens}) {
     List<Widget> list = new List();
 
-    list.add(
-      Container(
-        margin: EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
-        child: ListTileItem(
-          eventName: 'First Event Thiago',
-          eventTime: '14:00',
-          location: 'location',
-          colorHeader: ColorsPalette.primaryColorLight,
-          colorEventName: ColorsPalette.backgroundColorLight,
-          colorEventTime: ColorsPalette.backgroundColorLight,
-          divider: false,
-          onTap: () {
-            print('Clicked');
+    for (var item in itens) {
+      var eventId = substringAfter("mypresence", item.qrCode);
+      FirebaseService.getEventById(eventId);
 
-            // Navigator.push(
-            //   context,
-            //   FadeRoute(
-            //     page: EventDetails(),
-            //   ),
-            // );
-            _showDialog();
-          },
-        ),
-      ),
-    );
+      list.add(
+        Container(
+          margin: EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
+          child: ListTileItem(
+            eventName:
+                'First Event Thiago', // ISSO AQUI VAI SER UM PROBLEMA FUTURO
+            eventTime: item.timeStart,
+            location: item.local,
+            colorHeader: ColorsPalette.primaryColorLight,
+            colorEventName: ColorsPalette.backgroundColorLight,
+            colorEventTime: ColorsPalette.backgroundColorLight,
+            divider: false,
+            onTap: () {
+              print('Clicked');
 
-    list.add(
-      Container(
-        margin: EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
-        child: ListTileItem(
-          eventName: 'Second Event',
-          eventTime: '14:00',
-          location: 'location',
-          count: 35,
-          colorHeader: ColorsPalette.primaryColorLight,
-          colorEventName: ColorsPalette.backgroundColorLight,
-          colorEventTime: ColorsPalette.backgroundColorLight,
-          divider: false,
+              // Navigator.push(
+              //   context,
+              //   FadeRoute( KDOAK DOSAOK OSA OKDSAO KOASK ODSO AOASO DKOAO DKASO OAWO9 KDASOK D
+
+              //     page: EventDetails(),
+              //   ),
+              // );
+              _showDialog();
+            },
+          ),
         ),
-      ),
-    );
+      );
+    }
 
     return list;
   }
@@ -299,40 +296,37 @@ class _HomeState extends State<Home> {
   Future<void> _scanQrCode() async {
     try {
       String qrResult = await BarcodeScanner.scan();
-      final qrOccurrenceId = substringBefore("mypresence", _resultQrCode);
+      print('qrResult => ' + qrResult);
 
-      final qrEventId = substringAfter("mypresence", _resultQrCode);
-
+      final qrOccurrenceId = substringBefore("mypresence", qrResult);
+      final qrEventId = substringAfter("mypresence", qrResult);
       final qrEvent = await FirebaseService.getEventById(qrEventId);
+      final qrOccurrence =
+          await FirebaseService.getOccurrenceById(qrEventId, qrOccurrenceId);
+
+      print('qrOccurence => ' + qrOccurrence.local);
 
       setState(() {
         _resultQrCode = qrResult;
-        // TODO: Get Occurrence ID
-        //substringBefore
-
-        // TODO: Insert Event_Participants
-        _createEventParticipants(
-            qrEventId,
-            User(
-                id: widget.currentUser.uid,
-                displayName: widget.currentUser.displayName,
-                identifier: widget.currentUser.email,
-                photoUrl: widget.currentUser.photoUrl,
-                provider: 'Google'));
-
-        // TODO: Insert Participant_Events
-        _createParticipantEvents(widget.currentUser.uid, qrEvent);
-
-        // TODO: Insert Occurrence_Presence
-
         print('result qr code ' + _resultQrCode);
       });
+      await _createEventParticipants(
+          qrEventId,
+          User(
+              id: widget.currentUser.uid,
+              displayName: widget.currentUser.displayName,
+              identifier: widget.currentUser.email,
+              photoUrl: widget.currentUser.photoUrl,
+              provider: 'Google'));
+      await _createParticipantEvents(widget.currentUser.uid, qrEvent);
+      await _createOccurrenceGroupByDate(widget.currentUser.uid, qrOccurrence);
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
         setState(() {
           _resultQrCode = "Camera permission was denied";
         });
       } else {
+        print("Unknown Error: $e");
         setState(() {
           _resultQrCode = "Unknown Error: $e";
         });
@@ -342,10 +336,17 @@ class _HomeState extends State<Home> {
         _resultQrCode = "You pressed the back button before scanning anything";
       });
     } catch (e) {
+      print("222Unknown Error: $e");
       setState(() {
         _resultQrCode = "Unknown Error: $e";
       });
     }
+  }
+
+  /// Create OwnerEvents
+  Future<void> _createOccurrenceGroupByDate(
+      String userId, Occurrence occurrence) async {
+    await FirebaseService.createOccurrenceGroupByDate(userId, occurrence);
   }
 
   /// Create OwnerEvents
@@ -360,7 +361,15 @@ class _HomeState extends State<Home> {
 
   String substringBefore(String delimiter, String text) {
     var index = text.indexOf(delimiter); // 13
-    return text.substring(index + delimiter.length, text.length);
+    print(text);
+    print('Index: ' + index.toString());
+    print('Resultado: ' + text.substring(0, index));
+    print(
+        'Resultado: ' + text.substring(index + delimiter.length, text.length));
+    /*
+    -Lv3QyMEVTvu2MPA1s1Imypresence-Lv3QB9cARNmw64oYMa6
+    */
+    return text.substring(0, index);
   }
 
   String substringAfter(String delimiter, String text) {

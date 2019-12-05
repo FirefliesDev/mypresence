@@ -3,7 +3,7 @@ class FirebaseConstant {
   ///
   static const String item = "item";
 
-    ///
+  ///
   static const String user = "user";
 
   ///
@@ -21,10 +21,12 @@ class FirebaseConstant {
   /// Event's participants
   static const String eventParticipants = "event_participants";
 
+  ///
+  static const String occurrencesGroupByDate = "occurrences_group_by_date";
+
   /// Get all events from specifc Owner
   static const String ownerEvents = "owner_events";
 
-  /// Get all events which a participant is listed in. 
+  /// Get all events which a participant is listed in.
   static const String participantEvents = "participant_events";
-
 }

@@ -27,7 +27,8 @@ class _HomeEventManagementState extends State<HomeEventManagement> {
   @override
   void initState() {
     super.initState();
-    _future = FirebaseService.getEvents();
+    // FirebaseService.resetDatabase();
+    _future = FirebaseService.getEventsByOwner(widget.currentUser.uid);
   }
 
   @override

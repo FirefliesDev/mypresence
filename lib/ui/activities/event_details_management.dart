@@ -6,6 +6,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:mypresence/database/firebase_service.dart';
 import 'package:mypresence/model/event.dart';
 import 'package:mypresence/model/occurrence.dart';
+import 'package:mypresence/model/user.dart';
 import 'package:mypresence/ui/activities/create_event_occurrences.dart';
 import 'package:mypresence/ui/widgets/custom_expansion_tile.dart' as cet;
 import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
@@ -26,7 +27,9 @@ class EventDetails extends StatefulWidget {
 
 class _EventDetailsState extends State<EventDetails> {
   List<Occurrence> _occurrences = new List();
+  List<User> _participants = new List();
   var _futureOccurrence;
+  var _futureParticipants;
 
   // TODO: List participants
 
@@ -35,6 +38,7 @@ class _EventDetailsState extends State<EventDetails> {
     super.initState();
     changeDefaultLocale();
     _futureOccurrence = FirebaseService.getEventOccurrences(widget.event.id);
+    _futureParticipants = FirebaseService.getEventParticipants(widget.event.id);
   }
 
   @override
@@ -111,132 +115,26 @@ class _EventDetailsState extends State<EventDetails> {
                   ),
                 ),
                 children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 7.5, horizontal: 15),
-                          width: 50.0,
-                          height: 50.0,
-                          decoration: new BoxDecoration(
-                            color: Colors.amber,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                "Nome",
-                                style: TextStyle(
-                                  inherit: true,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              Text(
-                                "email",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  //REMOVER
-                  Row(
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 7.5, horizontal: 15),
-                          width: 50.0,
-                          height: 50.0,
-                          decoration: new BoxDecoration(
-                            color: Colors.amber,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                "Nome",
-                                style: TextStyle(
-                                  inherit: true,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              Text(
-                                "email",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 7.5, horizontal: 15),
-                          width: 50.0,
-                          height: 50.0,
-                          decoration: new BoxDecoration(
-                            color: Colors.amber,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                "Nome",
-                                style: TextStyle(
-                                  inherit: true,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              Text(
-                                "email",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                  FutureBuilder(
+                    future: _futureParticipants,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        _participants = snapshot.data;
+                        _participants.sort((a, b) {
+                          return a.displayName
+                              .toLowerCase()
+                              .compareTo(b.displayName.toLowerCase());
+                        });
+                        /*
+data.sort((a, b) {
+  return a['name'].toLowerCase().compareTo(b['name'].toLowerCase());
+});
+                        */
+                        return _buildListParticipants();
+                      } else {
+                        return Container();
+                      }
+                    },
                   ),
                 ],
               ),
@@ -304,6 +202,68 @@ class _EventDetailsState extends State<EventDetails> {
         style: TextStyle(color: ColorsPalette.textColorLight),
       ),
       iconTheme: IconThemeData(color: ColorsPalette.textColorLight),
+    );
+  }
+
+  ///
+  Widget _buildListParticipants() {
+    final String _emptyPhotoURL =
+        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: _participants == null ? 0 : _participants.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: index == 0
+              ? const EdgeInsets.all(0)
+              : const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: CircleAvatar(
+                    radius: 25.0,
+                    backgroundColor: ColorsPalette.backgroundColorLight,
+                    backgroundImage: NetworkImage(
+                        _participants[index].photoUrl != null
+                            ? _participants[index].photoUrl
+                            : _emptyPhotoURL),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        _participants[index].displayName,
+                        style: TextStyle(
+                          inherit: true,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 20,
+                        ),
+                      ),
+                      Text(
+                        _participants[index].identifier,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

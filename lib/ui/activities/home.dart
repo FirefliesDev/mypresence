@@ -57,6 +57,7 @@ class _HomeState extends State<Home> {
         body: FutureBuilder(
           future: _future,
           builder: (context, snapshot) {
+            print('SNAP SHOT POHA => ' + snapshot.data.toString()); // KKKKKKKKKKKKKKKKKKKKK VAI TOMA NO CU
             if (snapshot.connectionState == ConnectionState.done) {
               jsonOccurrenceByDate = snapshot.data;
               return _buildList();
@@ -160,7 +161,7 @@ class _HomeState extends State<Home> {
                 divider: false,
                 onTap: () {
                   print('Clicked');
-                  _showDialog();
+                  _showDialog(occurrence: item, event: event);
                 },
               ),
             );
@@ -190,7 +191,7 @@ class _HomeState extends State<Home> {
   }
 
   //Dialog Eventos
-  void _showDialog() {
+  void _showDialog({Occurrence occurrence, Event event}) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -221,7 +222,7 @@ class _HomeState extends State<Home> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            "Fri, Nov 29",
+                            Jiffy(occurrence.date).MMMMEEEEd,
                             style: TextStyle(
                               inherit: true,
                               fontWeight: FontWeight.w400,
@@ -249,7 +250,7 @@ class _HomeState extends State<Home> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                    'Palestra - Projeto Ágil',
+                    event.title,
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
                   ),
@@ -347,14 +348,6 @@ class _HomeState extends State<Home> {
 
   String substringBefore(String delimiter, String text) {
     var index = text.indexOf(delimiter); // 13
-    print(text);
-    print('Index: ' + index.toString());
-    print('Resultado: ' + text.substring(0, index));
-    print(
-        'Resultado: ' + text.substring(index + delimiter.length, text.length));
-    /*
-    -Lv3QyMEVTvu2MPA1s1Imypresence-Lv3QB9cARNmw64oYMa6
-    */
     return text.substring(0, index);
   }
 

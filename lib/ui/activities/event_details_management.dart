@@ -218,47 +218,55 @@ data.sort((a, b) {
           padding: index == 0
               ? const EdgeInsets.all(0)
               : const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
-          child: Row(
+          child: Column(
             children: <Widget>[
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: CircleAvatar(
-                    radius: 25.0,
-                    backgroundColor: ColorsPalette.backgroundColorLight,
-                    backgroundImage: NetworkImage(
-                        _participants[index].photoUrl != null
-                            ? _participants[index].photoUrl
-                            : _emptyPhotoURL),
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: CircleAvatar(
+                        radius: 25.0,
+                        backgroundColor: ColorsPalette.backgroundColorLight,
+                        backgroundImage: NetworkImage(
+                            _participants[index].photoUrl != null
+                                ? _participants[index].photoUrl
+                                : _emptyPhotoURL),
+                      ),
+                    ),
                   ),
-                ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            _participants[index].displayName,
+                            style: TextStyle(
+                              inherit: true,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 20,
+                            ),
+                          ),
+                          Text(
+                            _participants[index].identifier,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w300,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        _participants[index].displayName,
-                        style: TextStyle(
-                          inherit: true,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 20,
-                        ),
-                      ),
-                      Text(
-                        _participants[index].identifier,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              Divider(
+                indent: 30,
+                endIndent: 30,
               ),
             ],
           ),

@@ -191,21 +191,11 @@ class FirebaseService {
     _itemRef.set(occurrence.toJson());
   }
 
-  /// Get Events
-  static Future<Map<dynamic, dynamic>> getOccurrencesGroupByDate(
-      String userId) async {
-    // List<Occurrence> items = [];
-    var map = Map();
+  static Stream<Event> getOccurrencesGroupByDate(String userId) {
     final _itemRef = _databaseRef
         .child(FirebaseConstant.occurrencesGroupByDate)
         .child(userId);
-
-    await _itemRef.once().then((DataSnapshot snapshot) {
-      final value = snapshot.value as Map;
-      map = value;
-    });
-
-    return map;
+    return _itemRef.onValue;
   }
 
   /// Create EventParticipants

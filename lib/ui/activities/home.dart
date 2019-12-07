@@ -30,12 +30,10 @@ class _HomeState extends State<Home> {
   List<Event> events = new List();
   Map<dynamic, dynamic> jsonOccurrenceByDate;
   List<Occurrence> occurrences = new List();
-  var _future;
 
   @override
   void initState() {
     super.initState();
-    _future = FirebaseService.getOccurrencesGroupByDate(widget.currentUser.uid);
   }
 
   @override
@@ -54,12 +52,13 @@ class _HomeState extends State<Home> {
           photoUrl: widget.currentUser.photoUrl,
           onSignedOut: _signedOut,
         ),
-        body: FutureBuilder(
-          future: _future,
+        body: StreamBuilder(
+          stream:
+              FirebaseService.getOccurrencesGroupByDate(widget.currentUser.uid),
           builder: (context, snapshot) {
-            print('SNAP SHOT POHA => ' + snapshot.data.toString()); // KKKKKKKKKKKKKKKKKKKKK VAI TOMA NO CU
-            if (snapshot.connectionState == ConnectionState.done) {
-              jsonOccurrenceByDate = snapshot.data;
+            if (snapshot.hasData) {
+              final value = snapshot.data.snapshot.value as Map;
+              jsonOccurrenceByDate = value;
               return _buildList();
             } else {
               return Center(

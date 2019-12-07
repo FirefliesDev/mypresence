@@ -39,8 +39,10 @@ class FirebaseService {
     await _itemRef.once().then((DataSnapshot snapshot) {
       final value = snapshot.value as Map;
       for (final key in value.keys) {
-        event = model.Event.fromJson(snapshot.value[key]);
-        break;
+        if (key == eventId) {
+          event = model.Event.fromJson(snapshot.value[key]);
+          break;
+        }
       }
     });
     return event;

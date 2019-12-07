@@ -38,6 +38,157 @@ class _HomeState extends State<Home> {
     _future = FirebaseService.getOccurrencesGroupByDate(widget.currentUser.uid);
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return _buildScaffold();
+  }
+
+  /// Creates a Scaffold
+  Widget _buildScaffold() {
+    return Scaffold(
+        backgroundColor: ColorsPalette.backgroundColorSnow,
+        appBar: _buildAppBar(),
+        drawer: NavigationDrawer(
+          user: widget.currentUser,
+          email: widget.currentUser.email,
+          photoUrl: widget.currentUser.photoUrl,
+          onSignedOut: _signedOut,
+        ),
+        body: FutureBuilder(
+          future: _future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              jsonOccurrenceByDate = snapshot.data;
+              return _buildList();
+            } else {
+              return Center(
+                child: CircularProgressIndicator(
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(ColorsPalette.primaryColor),
+                ),
+              );
+            }
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+            elevation: 0.0,
+            child: Icon(Icons.camera_alt),
+            backgroundColor: ColorsPalette.accentColor,
+            onPressed: () {
+              _scanQrCode();
+            }));
+  }
+
+  ///
+  Widget _buildAppBar() {
+    return AppBar(
+      title: Text(
+        'Meus Eventos',
+        style: TextStyle(color: ColorsPalette.textColorLight),
+      ),
+      iconTheme: IconThemeData(color: ColorsPalette.textColorLight),
+    );
+  }
+
+  ///
+  Widget _buildList() {
+    return ListView.builder(
+      itemCount: jsonOccurrenceByDate == null ? 0 : jsonOccurrenceByDate.length,
+      itemBuilder: (context, index) {
+        var teste = jsonOccurrenceByDate.entries.toList()[index];
+        var conteudo = teste.value;
+        List<Occurrence> occurences = new List();
+
+        conteudo.forEach((k, v) {
+          Occurrence item = Occurrence.fromJson(v);
+          occurences.add(item);
+        });
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+          child: Container(
+            color: ColorsPalette.backgroundColorSnow,
+            child: Column(
+              children: <Widget>[
+                Container(
+                  child: cet.ExpansionTile(
+                    title: Container(
+                      child: Text(
+                        Jiffy(jsonOccurrenceByDate.keys.toList()[index])
+                            .MMMMEEEEd,
+                        style: TextStyle(
+                          color: ColorsPalette.textColorDark,
+                        ),
+                      ),
+                    ),
+                    headerBackgroundColor: ColorsPalette.accentColor,
+                    backgroundColor: Colors.white,
+                    iconColor: Colors.black,
+                    children: _listEventsWidgets(itens: occurences),
+                  ),
+                ),
+                Divider(
+                  color: ColorsPalette.textColorDark90,
+                  height: 0,
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  ///
+  List<Widget> _listEventsWidgets({List<Occurrence> itens}) {
+    List<Widget> list = new List();
+    for (var item in itens) {
+      var eventId = substringAfter("mypresence", item.qrCode);
+      list.add(FutureBuilder(
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            Event event = snapshot.data;
+            return Container(
+              margin: EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
+              child: ListTileItem(
+                eventName: event.title, // ISSO AQUI VAI SER UM PROBLEMA FUTURO
+                eventTime: item.timeStart,
+                location: item.local,
+                colorHeader: ColorsPalette.primaryColorLight,
+                colorEventName: ColorsPalette.backgroundColorLight,
+                colorEventTime: ColorsPalette.backgroundColorLight,
+                divider: false,
+                onTap: () {
+                  print('Clicked');
+                  _showDialog();
+                },
+              ),
+            );
+          } else {
+            return Container();
+          }
+        },
+        future: getEventsById(eventId),
+      ));
+    }
+    return list;
+  }
+
+  ///
+  Future getEventsById(String eventId) async {
+    return await FirebaseService.getEventById(eventId);
+  }
+
+  ///
+  void _signedOut() async {
+    try {
+      await widget.auth.signOut();
+      widget.onSignedOut();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   //Dialog Eventos
   void _showDialog() {
     showDialog(
@@ -125,171 +276,6 @@ class _HomeState extends State<Home> {
             ],
           );
         });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _buildScaffold();
-  }
-
-  /// Creates a Scaffold
-  Widget _buildScaffold() {
-    return Scaffold(
-        backgroundColor: ColorsPalette.backgroundColorSnow,
-        appBar: _buildAppBar(),
-        drawer: NavigationDrawer(
-          user: widget.currentUser,
-          email: widget.currentUser.email,
-          photoUrl: widget.currentUser.photoUrl,
-          onSignedOut: _signedOut,
-        ),
-        body: FutureBuilder(
-          future: _future,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              jsonOccurrenceByDate = snapshot.data;
-              return _buildList();
-            } else {
-              return Center(
-                child: CircularProgressIndicator(
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(ColorsPalette.primaryColor),
-                ),
-              );
-            }
-          },
-        ),
-        // SingleChildScrollView(
-        //   child: Container(
-        //     child: Container(
-        //       // margin: new EdgeInsets.all(0.0),
-        //       child: Column(
-        //         children: _listOccurrencesWidgets(),
-        //       ),
-        //     ),
-        //   ),
-        // ),
-        floatingActionButton: FloatingActionButton(
-            elevation: 0.0,
-            child: Icon(Icons.camera_alt),
-            backgroundColor: ColorsPalette.accentColor,
-            onPressed: () {
-              _scanQrCode();
-            }));
-  }
-
-  ///
-  Widget _buildAppBar() {
-    return AppBar(
-      title: Text(
-        'Meus Eventos',
-        style: TextStyle(color: ColorsPalette.textColorLight),
-      ),
-      iconTheme: IconThemeData(color: ColorsPalette.textColorLight),
-    );
-  }
-
-  ///
-  void _signedOut() async {
-    try {
-      await widget.auth.signOut();
-      widget.onSignedOut();
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  ///
-  Widget _buildList() {
-    return ListView.builder(
-      // padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-      itemCount: jsonOccurrenceByDate == null ? 0 : jsonOccurrenceByDate.length,
-      itemBuilder: (context, index) {
-        var teste = jsonOccurrenceByDate.entries.toList()[index];
-        var conteudo = teste.value;
-        List<Occurrence> occurences = new List();
-
-        conteudo.forEach((k, v) {
-          Occurrence item = Occurrence.fromJson(v);
-          occurences.add(item);
-        });
-
-        print(occurences.length);
-
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
-          child: Container(
-            // margin: new EdgeInsets.only(bottom: 10),
-            color: ColorsPalette.backgroundColorSnow,
-            child: Column(
-              children: <Widget>[
-                Container(
-                  child: cet.ExpansionTile(
-                    title: Container(
-                      child: Text(
-                        Jiffy(jsonOccurrenceByDate.keys.toList()[index])
-                            .MMMMEEEEd,
-                        style: TextStyle(
-                          color: ColorsPalette.textColorDark,
-                        ),
-                      ),
-                    ),
-                    headerBackgroundColor: ColorsPalette.accentColor,
-                    backgroundColor: Colors.white,
-                    iconColor: Colors.black,
-                    children: _listEventsWidgets(itens: occurences),
-                  ),
-                ),
-                Divider(
-                  color: ColorsPalette.textColorDark90,
-                  height: 0,
-                )
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  /// List of Events (Widget)
-  List<Widget> _listEventsWidgets({List<Occurrence> itens}) {
-    List<Widget> list = new List();
-
-    for (var item in itens) {
-      var eventId = substringAfter("mypresence", item.qrCode);
-      FirebaseService.getEventById(eventId);
-
-      list.add(
-        Container(
-          margin: EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
-          child: ListTileItem(
-            eventName:
-                'First Event Thiago', // ISSO AQUI VAI SER UM PROBLEMA FUTURO
-            eventTime: item.timeStart,
-            location: item.local,
-            colorHeader: ColorsPalette.primaryColorLight,
-            colorEventName: ColorsPalette.backgroundColorLight,
-            colorEventTime: ColorsPalette.backgroundColorLight,
-            divider: false,
-            onTap: () {
-              print('Clicked');
-
-              // Navigator.push(
-              //   context,
-              //   FadeRoute( KDOAK DOSAOK OSA OKDSAO KOASK ODSO AOASO DKOAO DKASO OAWO9 KDASOK D
-
-              //     page: EventDetails(),
-              //   ),
-              // );
-              _showDialog();
-            },
-          ),
-        ),
-      );
-    }
-
-    return list;
   }
 
   /// Scan QR Code

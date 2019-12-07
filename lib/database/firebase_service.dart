@@ -111,6 +111,21 @@ class FirebaseService {
     return items;
   }
 
+  /// Get Event's Participants
+  static Future<List<User>> getEventParticipants(String eventId) async {
+    List<User> items = [];
+    final _itemRef =
+        _databaseRef.child(FirebaseConstant.eventParticipants).child(eventId);
+    await _itemRef.once().then((DataSnapshot snapshot) {
+      final value = snapshot.value as Map;
+      for (final key in value.keys) {
+        User u = User.fromJson(snapshot.value[key]);
+        items.add(u);
+      }
+    });
+    return items;
+  }
+
   /// Get Event's Occurrences
   static Future<List<Occurrence>> getChildrenGroupBy(
       String userId, String key) async {
@@ -184,22 +199,10 @@ class FirebaseService {
     final _itemRef = _databaseRef
         .child(FirebaseConstant.occurrencesGroupByDate)
         .child(userId);
+
     await _itemRef.once().then((DataSnapshot snapshot) {
       final value = snapshot.value as Map;
       map = value;
-      // print('Value => ${value}');
-      // for (final key in value.values) {
-      //   // Occurrence i = Occurrence.fromJson(snapshot.value[key]);
-      //   // print('Key Teste=> ${key.length}');
-      //   key.forEach((k, v) => print("k: $k v: $v"));
-      //   // print('Key => ${key.value}');
-      //   // mapName[key] = i;
-      //   // items.add(i);
-      // }
-
-      // mapName.forEach((k, v) => print("v: $v"));
-
-      // print(items.toString());
     });
 
     return map;

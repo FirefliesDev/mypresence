@@ -36,6 +36,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    // FirebaseService.updateOccurrencesGroupByDate("eventId");
   }
 
   @override
@@ -296,7 +297,7 @@ class _HomeState extends State<Home> {
         print('result qr code ' + _resultQrCode);
       });
       await _createEventParticipants(
-          qrEventId,
+          qrEvent,
           User(
               id: widget.currentUser.uid,
               displayName: widget.currentUser.displayName,
@@ -335,8 +336,8 @@ class _HomeState extends State<Home> {
   }
 
   /// Create OwnerEvents
-  Future<void> _createEventParticipants(String eventId, User user) async {
-    await FirebaseService.createEventParticipants(eventId, user);
+  Future<void> _createEventParticipants(Event event, User user) async {
+    await FirebaseService.createEventParticipants(event, user);
   }
 
   /// Create ParticipantEvents

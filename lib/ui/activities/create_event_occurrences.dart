@@ -7,6 +7,7 @@ import 'package:mypresence/database/firebase_service.dart';
 import 'package:mypresence/model/event.dart' as model;
 import 'package:mypresence/model/item.dart';
 import 'package:mypresence/model/occurrence.dart';
+import 'package:mypresence/ui/activities/event_details_management.dart';
 import 'package:mypresence/ui/activities/home_event_management.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 
@@ -17,70 +18,34 @@ class CreateEventOccurrences extends StatefulWidget {
   final String eventName;
   final VoidCallback onSignedOut;
   final FirebaseUser currentUser;
+  final model.Event event;
 
-  CreateEventOccurrences({this.eventName, this.currentUser, this.onSignedOut});
+  CreateEventOccurrences(
+      {this.eventName, this.currentUser, this.onSignedOut, this.event});
+
   @override
   _CreateEventOccurrencesState createState() => _CreateEventOccurrencesState();
 }
 
 class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String _localValue, _timeStartValue, _timeEndValue;
   TextEditingController _timeStartController;
   TextEditingController _timeEndController;
+  String _localValue, _timeStartValue, _timeEndValue;
+  //
   static DateTime now = DateTime.now();
   DateTime currentdate = DateTime(now.year, now.month, now.day);
   //
   DateTime _date = now;
-
+  //
   Color _todayButtonColor = ColorsPalette.accentColor;
   TextStyle _todayTextStyle = TextStyle(fontSize: 14.0, color: Colors.white);
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  //
+  String _eventId;
 
   @override
   Widget build(BuildContext context) {
     return _buildScaffold(context);
-  }
-
-  Widget calendarCarousel() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 0.0),
-      child: CalendarCarousel<Event>(
-        onDayPressed: (DateTime date, List<Event> events) {
-          // this.setState(() => );
-          setState(() {
-            if (date == currentdate) {
-              _todayTextStyle = TextStyle(fontSize: 14.0, color: Colors.white);
-            } else {
-              _todayTextStyle = TextStyle(
-                  fontSize: 14.0,
-                  color: Colors.green, // ALERT
-                  fontWeight: FontWeight.w500);
-            }
-            _date = date;
-            _todayButtonColor = Colors.transparent;
-          });
-          events.forEach((event) => print(event.title));
-        },
-        todayButtonColor: _todayButtonColor,
-        todayTextStyle: _todayTextStyle,
-        weekendTextStyle: TextStyle(color: ColorsPalette.accentColor),
-        headerTextStyle:
-            TextStyle(fontSize: 20.0, color: ColorsPalette.primaryColor),
-        iconColor: ColorsPalette.primaryColor,
-        weekFormat: false,
-        height: 420.0,
-        daysHaveCircularBorder: null,
-        selectedDayButtonColor: ColorsPalette.accentColor,
-        selectedDateTime: _date,
-
-        /// null for not rendering any border, true for circular border, false for rectangular border
-      ),
-    );
   }
 
   /// Creates a Scaffold
@@ -132,8 +97,6 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
       onTap: () {
         DatePicker.showTimePicker(context,
             showTitleActions: true, onChanged: (date) {}, onConfirm: (date) {
-          print('confirm $date');
-          print('change ${date.hour}:${date.minute}');
           String time = '${DateFormat('HH:mm').format(date)}';
           setState(() {
             _timeEndController = TextEditingController(text: time);
@@ -156,6 +119,33 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
       ),
     );
 
+    final _title = Text(
+      "Ocorrências",
+      style: TextStyle(
+          color: ColorsPalette.textColorDark,
+          fontSize: 24,
+          fontWeight: FontWeight.w700),
+      textAlign: TextAlign.center,
+    );
+
+    final _subtitle = Text(
+      "Informe a data, o local e a duração do seu evento. Você pode adicionar quantas datas quiser!",
+      style: TextStyle(
+          color: ColorsPalette.textColorDark90,
+          fontSize: 16,
+          fontWeight: FontWeight.w400),
+      textAlign: TextAlign.center,
+    );
+
+    final _labelCreateEvent = Text(
+      widget.event == null ? "CRIAR EVENTO" : "CRIAR OCORRÊNCIA",
+      style: TextStyle(
+          color: ColorsPalette.textColorLight,
+          fontWeight: FontWeight.w700,
+          fontSize: 16),
+      textAlign: TextAlign.center,
+    );
+
     return Scaffold(
       appBar: _buildAppBar(context),
       backgroundColor: ColorsPalette.backgroundColorSnow,
@@ -168,24 +158,10 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
                 padding: const EdgeInsets.all(15.0),
                 child: Column(
                   children: <Widget>[
-                    Text(
-                      "Ocorrências",
-                      style: TextStyle(
-                          color: ColorsPalette.textColorDark,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700),
-                      textAlign: TextAlign.center,
-                    ),
+                    _title,
                     Padding(
                       padding: const EdgeInsets.only(top: 15),
-                      child: Text(
-                        "Informe a data, o local e a duração do seu evento. Você pode adicionar quantas datas quiser!",
-                        style: TextStyle(
-                            color: ColorsPalette.textColorDark90,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400),
-                        textAlign: TextAlign.center,
-                      ),
+                      child: _subtitle,
                     ),
                     calendarCarousel(),
                     Padding(
@@ -225,51 +201,61 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
             onTap: () async {
               if (isValidForm()) {
                 saveDataForm();
-                print('clicked ${widget.eventName}');
-                print('clicked $_localValue');
-                print('clicked $_timeStartValue');
-                print('clicked $_timeEndValue');
-                print('clicked ${DateFormat('yyyy-MM-dd').format(_date)}');
-
-                //_create();
-                final eventId = await _createEvent(model.Event(
-                    title: widget.eventName, descripton: "Custom Description"));
 
                 List<Occurrence> occurrences = new List();
+
                 occurrences.add(Occurrence(
                     local: _localValue,
                     date: DateFormat('yyyy-MM-dd').format(_date),
                     timeStart: _timeStartValue,
-                    timeEnd: _timeEndValue));
+                    timeEnd: _timeEndValue,
+                    qrCode: ""));
+                if (widget.event == null) {
+                  model.Event item = model.Event(
+                      title: widget.eventName,
+                      descripton: "Custom Description",
+                      countParticipants: "0",
+                      ownerId: widget.currentUser.uid);
+                  _eventId = await _createEvent(item);
+                  item.id = _eventId;
+                  await _createEventOccurrences(item, occurrences);
+                  await _createOwnerEvents(widget.currentUser.uid, item);
 
-                await _createEventOccurrences(eventId, occurrences);
-
-                Navigator.push(
-                  context,
-                  FadeRoute(
-                    page: HomeEventManagement(
-                      currentUser: widget.currentUser,
-                      onSignedOut: widget.onSignedOut,
+                  await Navigator.push(
+                    context,
+                    FadeRoute(
+                      page: HomeEventManagement(
+                        currentUser: widget.currentUser,
+                        onSignedOut: widget.onSignedOut,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  _eventId = widget.event.id;
+
+                  await _createEventOccurrences(widget.event, occurrences);
+
+                  Navigator.push(
+                    context,
+                    FadeRoute(
+                      page: EventDetails(
+                        event: widget.event,
+                        currentUser: widget.currentUser,
+                        onSignedOut: widget.onSignedOut,
+                      ),
+                    ),
+                  );
+                }
               }
             },
-            child: Text(
-              "CRIAR EVENTO",
-              style: TextStyle(
-                  color: ColorsPalette.textColorLight,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
+            child: _labelCreateEvent,
           ),
         ),
       ),
     );
   }
 
-  ///
+  /// Build app bar
   Widget _buildAppBar(context) {
     return AppBar(
       title: Text(
@@ -291,40 +277,71 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
     );
   }
 
-  ///
-  Future<void> _create() async {
-    await FirebaseService.create(
-        Item(title: 'Item', description: 'My description'));
+  /// Build Calendar
+  Widget calendarCarousel() {
+    double itemWidth = MediaQuery.of(context).size.width / 5;
+    double itemHeight = 400 / 5;
 
-    print('event created');
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+      child: CalendarCarousel<Event>(
+          onDayPressed: (DateTime date, List<Event> events) {
+            setState(() {
+              if (date == currentdate) {
+                _todayTextStyle =
+                    TextStyle(fontSize: 14.0, color: Colors.white);
+              } else {
+                _todayTextStyle = TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.green, // ALERT
+                    fontWeight: FontWeight.w500);
+              }
+              _date = date;
+              _todayButtonColor = Colors.transparent;
+            });
+            events.forEach((event) => print(event.title));
+          },
+          todayButtonColor: _todayButtonColor,
+          todayTextStyle: _todayTextStyle,
+          weekendTextStyle: TextStyle(color: ColorsPalette.accentColor),
+          headerTextStyle:
+              TextStyle(fontSize: 20.0, color: ColorsPalette.primaryColor),
+          iconColor: ColorsPalette.primaryColor,
+          weekFormat: false,
+          height: 420.0,
+          daysHaveCircularBorder: null,
+          selectedDayButtonColor: ColorsPalette.accentColor,
+          selectedDateTime: _date,
+          customGridViewPhysics: NeverScrollableScrollPhysics(),
+          isScrollable: false,
+          pageSnapping: false,
+          childAspectRatio: itemWidth / itemHeight),
+    );
   }
 
-  ///
+  /// Create Event
   Future<String> _createEvent(model.Event item) async {
     final eventId = await FirebaseService.createEvent(item);
-    print('event created');
     return eventId;
   }
 
-  ///
-  Future<void> _createOccurrence(Occurrence item) async {
-    await FirebaseService.createOccurrence(item);
-    print('occurrence created');
-  }
-
-  ///
+  /// Create Occurrences
   Future<void> _createEventOccurrences(
-      String eventId, List<Occurrence> occurrences) async {
-    await FirebaseService.createEventOccurrences(eventId, occurrences);
-    print('event occurrences created');
+      model.Event event, List<Occurrence> occurrences) async {
+    await FirebaseService.createEventOccurrences(event, occurrences);
   }
 
-  ///
+  /// Create OwnerEvents
+  Future<void> _createOwnerEvents(String userId, model.Event item) async {
+    await FirebaseService.createOwnerEvents(userId, item);
+  }
+
+  /// Check if form is valid
   bool isValidForm() {
     return _formKey.currentState.validate();
   }
 
-  ///
+  /// Save form
   void saveDataForm() {
     _formKey.currentState.save();
   }

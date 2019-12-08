@@ -22,8 +22,14 @@ class ListTileItem extends StatelessWidget {
   /// The participants count
   final int count;
 
+  ///
+  final bool showCount;
+
   /// A divider to be added bellow the item
   final bool divider;
+
+  ///
+  final String location;
 
   /// Callback funcion to handle click actions
   final VoidCallback onTap;
@@ -35,7 +41,9 @@ class ListTileItem extends StatelessWidget {
       this.colorEventTime,
       this.eventTime,
       this.count,
+      this.showCount = true,
       this.divider = true,
+      this.location,
       this.onTap});
 
   @override
@@ -64,47 +72,53 @@ class ListTileItem extends StatelessWidget {
                           color: colorEventName,
                         ),
                       ),
-                      Stack(
-                        alignment: AlignmentDirectional.center,
-                        children: <Widget>[
-                          Container(
-                            width: 24,
-                            height: 24,
-                            decoration: new BoxDecoration(
-                              color: ColorsPalette.accentColor,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          Text(
-                            count.toString() == 'null' ? '0' : count.toString(),
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: ColorsPalette.textColorLight),
-                          )
-                        ],
-                      )
+                      showCount
+                          ? Stack(
+                              alignment: AlignmentDirectional.center,
+                              children: <Widget>[
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: new BoxDecoration(
+                                    color: ColorsPalette.accentColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                Text(
+                                  count.toString() == 'null'
+                                      ? '0'
+                                      : count.toString(),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: ColorsPalette.textColorLight),
+                                )
+                              ],
+                            )
+                          : Container()
                     ],
                   ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          'Location',
-                          style: TextStyle(
-                            color: colorEventName,
+                  subtitle: location == null
+                      ? null
+                      : Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                location,
+                                style: TextStyle(
+                                  color: colorEventName,
+                                ),
+                              ),
+                              Text(
+                                eventTime,
+                                style: TextStyle(
+                                  color: colorEventTime,
+                                ),
+                              )
+                            ],
                           ),
                         ),
-                        Text(
-                          eventTime,
-                          style: TextStyle(
-                            color: colorEventTime,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
                 ),
               ],
             ),

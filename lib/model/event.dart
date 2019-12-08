@@ -1,21 +1,32 @@
 class Event {
-  int id;
+  String id;
   String title;
   String descripton;
+  String countParticipants;
+  String ownerId;
 
-  Event({this.id, this.title, this.descripton});
+  Event(
+      {this.id,
+      this.title,
+      this.descripton,
+      this.countParticipants,
+      this.ownerId});
 
-  Event.fromJson(Map<String, dynamic> json) {
+  Event.fromJson(Map<dynamic, dynamic> json) {
     id = json['id'];
     title = json['title'];
     descripton = json['descripton'];
+    countParticipants = json['count_participants'];
+    ownerId = json['owner_id'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+  Map<dynamic, dynamic> toJson() {
+    final Map<dynamic, dynamic> data = new Map<dynamic, dynamic>();
     data['id'] = this.id;
     data['title'] = this.title;
     data['descripton'] = this.descripton;
+    data['count_participants'] = this.countParticipants;
+    data['owner_id'] = this.ownerId;
     return data;
   }
 }

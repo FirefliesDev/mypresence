@@ -1,7 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mypresence/authentication/authentication.dart';
+import 'package:mypresence/database/firebase_service.dart';
+import 'package:mypresence/model/event.dart';
+import 'package:mypresence/model/user.dart';
 import 'package:mypresence/ui/activities/create_event_name.dart';
+import 'package:mypresence/ui/activities/event_details_management.dart';
+import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
 import 'package:mypresence/ui/widgets/navigation_drawer.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 import 'package:mypresence/utils/transitions/fade_route.dart';
@@ -18,15 +22,15 @@ class HomeEventManagement extends StatefulWidget {
 }
 
 class _HomeEventManagementState extends State<HomeEventManagement> {
-  // FirebaseUser _currentUser;
-  // VoidCallback _onSignedOut;
-  // @override
-  // void initState() async {
-  //   super.initState();
-  //   final user = await Authentication().currentUser();
-  //   this._currentUser = user;
-  //   _onSignedOut = () {};
-  // }
+  List<Event> events = new List();
+  var _future;
+
+  @override
+  void initState() {
+    super.initState();
+    // FirebaseService.resetDatabase();
+    _future = FirebaseService.getEventsByOwner(widget.currentUser.uid);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +42,21 @@ class _HomeEventManagementState extends State<HomeEventManagement> {
     return Scaffold(
         backgroundColor: ColorsPalette.backgroundColorSnow,
         appBar: _buildAppBar(),
-        body: SingleChildScrollView(
-          child: Center(
-            child: Text(
-              "My List",
-              textAlign: TextAlign.center,
-            ),
-          ),
+        body: FutureBuilder(
+          future: _future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              events = snapshot.data;
+              return _buildList();
+            } else {
+              return Center(
+                child: CircularProgressIndicator(
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(ColorsPalette.primaryColor),
+                ),
+              );
+            }
+          },
         ),
         drawer: NavigationDrawer(
           user: widget.currentUser,
@@ -77,6 +89,39 @@ class _HomeEventManagementState extends State<HomeEventManagement> {
         style: TextStyle(color: ColorsPalette.textColorLight),
       ),
       iconTheme: IconThemeData(color: ColorsPalette.textColorLight),
+    );
+  }
+
+  ///
+  Widget _buildList() {
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+      itemCount: events == null ? 0 : events.length,
+      itemBuilder: (context, index) {
+        return Padding(
+            padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+            child: ListTileItem(
+              eventName: events[index].title,
+              colorHeader: ColorsPalette.primaryColorLight,
+              colorEventName: ColorsPalette.backgroundColorLight,
+              colorEventTime: ColorsPalette.backgroundColorLight,
+              divider: false,
+              count: int.parse(events[index].countParticipants),
+              onTap: () {
+                print('Clicked -> ${events[index].toJson()}');
+                Navigator.push(
+                  context,
+                  FadeRoute(
+                    page: EventDetails(
+                      event: events[index],
+                      currentUser: widget.currentUser,
+                      onSignedOut: widget.onSignedOut,
+                    ),
+                  ),
+                );
+              },
+            ));
+      },
     );
   }
 }

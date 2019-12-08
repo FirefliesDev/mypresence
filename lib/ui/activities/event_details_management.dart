@@ -13,6 +13,7 @@ import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
 import 'package:mypresence/ui/activities/details_occurrence.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 import 'package:mypresence/utils/transitions/fade_route.dart';
+import 'package:mypresence/utils/transitions/slide_route.dart';
 
 class EventDetails extends StatefulWidget {
   final Event event;
@@ -74,7 +75,7 @@ class _EventDetailsState extends State<EventDetails> {
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w600,
-                      fontSize: 22,
+                      fontSize: 18,
                     ),
                   ),
                 ),
@@ -110,7 +111,7 @@ class _EventDetailsState extends State<EventDetails> {
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w600,
-                      fontSize: 22,
+                      fontSize: 18,
                     ),
                   ),
                 ),
@@ -120,16 +121,13 @@ class _EventDetailsState extends State<EventDetails> {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
                         _participants = snapshot.data;
-                        _participants.sort((a, b) {
-                          return a.displayName
-                              .toLowerCase()
-                              .compareTo(b.displayName.toLowerCase());
-                        });
-                        /*
-data.sort((a, b) {
-  return a['name'].toLowerCase().compareTo(b['name'].toLowerCase());
-});
-                        */
+                        if (_participants != null) {
+                          _participants.sort((a, b) {
+                            return a.displayName
+                                .toLowerCase()
+                                .compareTo(b.displayName.toLowerCase());
+                          });
+                        }
                         return _buildListParticipants();
                       } else {
                         return Container();
@@ -220,50 +218,53 @@ data.sort((a, b) {
               : const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
           child: Column(
             children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: CircleAvatar(
-                        radius: 25.0,
-                        backgroundColor: ColorsPalette.backgroundColorLight,
-                        backgroundImage: NetworkImage(
-                            _participants[index].photoUrl != null
-                                ? _participants[index].photoUrl
-                                : _emptyPhotoURL),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            _participants[index].displayName,
-                            style: TextStyle(
-                              inherit: true,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 20,
+              _participants == null
+                  ? Text('Nenhum participante encontrado.')
+                  : Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 20),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: CircleAvatar(
+                              radius: 25.0,
+                              backgroundColor:
+                                  ColorsPalette.backgroundColorLight,
+                              backgroundImage: NetworkImage(
+                                  _participants[index].photoUrl != null
+                                      ? _participants[index].photoUrl
+                                      : _emptyPhotoURL),
                             ),
                           ),
-                          Text(
-                            _participants[index].identifier,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w300,
-                              fontSize: 15,
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  _participants[index].displayName,
+                                  style: TextStyle(
+                                    inherit: true,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                Text(
+                                  _participants[index].identifier,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
               Divider(
                 indent: 30,
                 endIndent: 30,
@@ -299,7 +300,7 @@ data.sort((a, b) {
             onTap: () {
               Navigator.push(
                 context,
-                FadeRoute(
+                SlideLeftRoute(
                   page: DetailsOccurrence(
                     occurrence: _occurrences[index],
                     event: widget.event,

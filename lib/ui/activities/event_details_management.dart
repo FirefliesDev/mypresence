@@ -8,6 +8,7 @@ import 'package:mypresence/model/event.dart';
 import 'package:mypresence/model/occurrence.dart';
 import 'package:mypresence/model/user.dart';
 import 'package:mypresence/ui/activities/create_event_occurrences.dart';
+import 'package:mypresence/ui/activities/create_new_participant.dart';
 import 'package:mypresence/ui/widgets/custom_expansion_tile.dart' as cet;
 import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
 import 'package:mypresence/ui/activities/details_occurrence.dart';
@@ -162,7 +163,16 @@ class _EventDetailsState extends State<EventDetails> {
               backgroundColor: Colors.green,
               label: 'Novo Participante',
               labelStyle: TextStyle(fontSize: 18.0),
-              onTap: () => print('add_participant')),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  FadeRoute(
+                    page: CreateNewParticipant(
+
+                    ),
+                  ),
+                );
+              }),
           SpeedDialChild(
             child: Icon(Icons.event),
             backgroundColor: Colors.blue,

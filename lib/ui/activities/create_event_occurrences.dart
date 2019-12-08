@@ -214,7 +214,8 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
                 if (widget.event == null) {
                   model.Event item = model.Event(
                       title: widget.eventName,
-                      descripton: "Custom Description");
+                      descripton: "Custom Description",
+                      countParticipants: "0");
                   _eventId = await _createEvent(item);
                   item.id = _eventId;
                   await _createEventOccurrences(item, occurrences);

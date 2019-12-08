@@ -32,6 +32,21 @@ class FirebaseService {
     return items;
   }
 
+  /// Get Users
+  static Future<List<User>> getUsers() async {
+    List<User> items = [];
+    final _itemRef = _databaseRef.child(FirebaseConstant.user);
+    await _itemRef.once().then((DataSnapshot snapshot) {
+      final value = snapshot.value as Map;
+      for (final key in value.keys) {
+        User i = User.fromJson(snapshot.value[key]);
+        items.add(i);
+      }
+      print(items.toString());
+    });
+    return items;
+  }
+
   /// Get Events
   static Future<model.Event> getEventById(String eventId) async {
     model.Event event;

@@ -40,7 +40,9 @@ class FirebaseService {
       final value = snapshot.value as Map;
       for (final key in value.keys) {
         if (key == eventId) {
-          event = model.Event.fromJson(snapshot.value[key]);
+          var parsed = snapshot.value[key] as Map<dynamic, dynamic>;
+          parsed['count_participants'] = parsed['count_participants'];
+          event = model.Event.fromJson(parsed);
           break;
         }
       }
@@ -73,16 +75,21 @@ class FirebaseService {
   /// Get Events
   static Future<List<model.Event>> getEventsByOwner(String userId) async {
     List<model.Event> items = [];
+
     final _itemRef =
         _databaseRef.child(FirebaseConstant.ownerEvents).child(userId);
+
     await _itemRef.once().then((DataSnapshot snapshot) {
       final value = snapshot.value as Map;
+
       for (final key in value.keys) {
+        snapshot.value[key]['count_participants'] =
+            snapshot.value[key]['count_participants'].toString();
         model.Event i = model.Event.fromJson(snapshot.value[key]);
         items.add(i);
       }
-      print(items.toString());
     });
+
     return items;
   }
 
@@ -118,9 +125,11 @@ class FirebaseService {
         _databaseRef.child(FirebaseConstant.eventParticipants).child(eventId);
     await _itemRef.once().then((DataSnapshot snapshot) {
       final value = snapshot.value as Map;
-      for (final key in value.keys) {
-        User u = User.fromJson(snapshot.value[key]);
-        items.add(u);
+      if (value != null) {
+        for (final key in value.keys) {
+          User u = User.fromJson(snapshot.value[key]);
+          items.add(u);
+        }
       }
     });
     return items;
@@ -183,11 +192,6 @@ class FirebaseService {
         .child(userId)
         .child(occurrence.date)
         .child(occurrence.id);
-
-    print('UserID: $userId');
-    print('UserID: ${occurrence.date}');
-    print('UserID: ${occurrence.id}');
-
     _itemRef.set(occurrence.toJson());
   }
 
@@ -200,9 +204,34 @@ class FirebaseService {
 
   /// Create EventParticipants
   static Future<void> createEventParticipants(String eventId, User user) async {
-    final _itemRef =
-        _databaseRef.child(FirebaseConstant.eventParticipants).child(eventId);
-    _itemRef.child(user.id).set(user.toJson());
+    List<User> participants = await getEventParticipants(eventId);
+    bool exist = false;
+
+    for (var i in participants) {
+      if (i.id == user.id) {
+        exist = true;
+        break;
+      }
+    }
+
+    if (!exist) {
+      var event = await getEventById(eventId);
+      final _eventRef =
+          _databaseRef.child(FirebaseConstant.event).child(eventId);
+
+      final _ownerRef = _databaseRef
+          .child(FirebaseConstant.ownerEvents)
+          .child(user.id)
+          .child(eventId);
+
+      int count = int.parse(event.countParticipants) + 1;
+      _eventRef.child("count_participants").set(count.toString());
+      _ownerRef.child("count_participants").set(count.toString());
+
+      final _itemRef =
+          _databaseRef.child(FirebaseConstant.eventParticipants).child(eventId);
+      _itemRef.child(user.id).set(user.toJson());
+    }
   }
 
   /// Create EventParticipants

@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -95,45 +97,42 @@ class _HomeState extends State<Home> {
     return ListView.builder(
       itemCount: jsonOccurrenceByDate == null ? 0 : jsonOccurrenceByDate.length,
       itemBuilder: (context, index) {
-        var teste = jsonOccurrenceByDate.entries.toList()[index];
-        var conteudo = teste.value;
         List<Occurrence> occurences = new List();
 
-        conteudo.forEach((k, v) {
+        final sorted = new SplayTreeMap.from(jsonOccurrenceByDate, (a, b) {
+          return a.toString().compareTo(b.toString());
+        });
+
+        sorted.entries.toList()[index].value.forEach((k, v) {
           Occurrence item = Occurrence.fromJson(v);
           occurences.add(item);
         });
 
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
-          child: Container(
-            color: ColorsPalette.backgroundColorSnow,
-            child: Column(
-              children: <Widget>[
-                Container(
-                  child: cet.ExpansionTile(
-                    title: Container(
-                      child: Text(
-                        Jiffy(jsonOccurrenceByDate.keys.toList()[index])
-                            .MMMMEEEEd,
-                        style: TextStyle(
-                          color: ColorsPalette.textColorDark,
-                        ),
-                      ),
+        return Column(
+          children: <Widget>[
+            Container(
+              child: cet.ExpansionTile(
+                title: Container(
+                  child: Text(
+                    Jiffy(sorted.entries.toList()[index].key).MMMMEEEEd,
+                    style: TextStyle(
+                      color: ColorsPalette.textColorDark,
                     ),
-                    headerBackgroundColor: ColorsPalette.accentColor,
-                    backgroundColor: Colors.white,
-                    iconColor: Colors.black,
-                    children: _listEventsWidgets(itens: occurences),
                   ),
                 ),
-                Divider(
-                  color: ColorsPalette.textColorDark90,
-                  height: 0,
-                )
-              ],
+                headerBackgroundColor: ColorsPalette.accentColor,
+                backgroundColor: Colors.white,
+                iconColor: Colors.black,
+                // children: <Widget>[Text('Testing performance')],
+                children: _listEventsWidgets(itens: occurences),
+                // _listEventsWidgets(itens: occurences),
+              ),
             ),
-          ),
+            Divider(
+              color: ColorsPalette.textColorDark90,
+              height: 0,
+            )
+          ],
         );
       },
     );
@@ -158,8 +157,8 @@ class _HomeState extends State<Home> {
                 colorEventName: ColorsPalette.backgroundColorLight,
                 colorEventTime: ColorsPalette.backgroundColorLight,
                 divider: false,
+                count: int.parse(event.countParticipants),
                 onTap: () {
-                  print('Clicked');
                   _showDialog(occurrence: item, event: event);
                 },
               ),
@@ -312,7 +311,7 @@ class _HomeState extends State<Home> {
           _resultQrCode = "Camera permission was denied";
         });
       } else {
-        print("Unknown Error: $e");
+        print("Unknown Error1: $e");
         setState(() {
           _resultQrCode = "Unknown Error: $e";
         });
@@ -322,7 +321,7 @@ class _HomeState extends State<Home> {
         _resultQrCode = "You pressed the back button before scanning anything";
       });
     } catch (e) {
-      print("222Unknown Error: $e");
+      print("Unknown Error2: $e");
       setState(() {
         _resultQrCode = "Unknown Error: $e";
       });

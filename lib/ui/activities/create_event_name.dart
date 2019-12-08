@@ -16,7 +16,7 @@ class CreateEventName extends StatefulWidget {
 
 class _CreateEventNameState extends State<CreateEventName> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String _eventNameValue;
+  String _eventNameValue, _eventDescriptionValue;
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +31,23 @@ class _CreateEventNameState extends State<CreateEventName> {
           input.isEmpty ? 'Digite um nome para o seu evento' : null,
       onSaved: (input) => _eventNameValue = input,
       decoration: InputDecoration(
-        labelText: 'Escolha um nome',
+        labelText: 'Nome',
         prefixIcon: Icon(
-          Icons.bookmark_border,
+          Icons.bookmark,
+          color: ColorsPalette.primaryColor,
+        ),
+      ),
+    );
+
+    /// Description
+    final _description = TextFormField(
+      validator: (input) =>
+          input.isEmpty ? 'Digite um nome para o seu evento' : null,
+      onSaved: (input) => _eventDescriptionValue = input,
+      decoration: InputDecoration(
+        labelText: 'Descrição',
+        prefixIcon: Icon(
+          Icons.description,
           color: ColorsPalette.primaryColor,
         ),
       ),
@@ -74,6 +88,7 @@ class _CreateEventNameState extends State<CreateEventName> {
                 FadeRoute(
                   page: CreateEventOccurrences(
                     eventName: _eventNameValue,
+                    eventDescription: _eventDescriptionValue,
                     currentUser: widget.currentUser,
                     onSignedOut: widget.onSignedOut,
                   ),
@@ -114,6 +129,10 @@ class _CreateEventNameState extends State<CreateEventName> {
                         padding: const EdgeInsets.only(top: 15),
                         child: _name,
                       ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15),
+                        child: _description,
+                      )
                     ],
                   ),
                 ),

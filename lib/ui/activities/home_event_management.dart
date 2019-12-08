@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mypresence/database/firebase_service.dart';
 import 'package:mypresence/model/event.dart';
+import 'package:mypresence/model/user.dart';
 import 'package:mypresence/ui/activities/create_event_name.dart';
 import 'package:mypresence/ui/activities/event_details_management.dart';
 import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
@@ -46,7 +47,6 @@ class _HomeEventManagementState extends State<HomeEventManagement> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               events = snapshot.data;
-              print(events);
               return _buildList();
             } else {
               return Center(
@@ -99,28 +99,28 @@ class _HomeEventManagementState extends State<HomeEventManagement> {
       itemCount: events == null ? 0 : events.length,
       itemBuilder: (context, index) {
         return Padding(
-          padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
-          child: ListTileItem(
-            eventName: events[index].title,
-            colorHeader: ColorsPalette.primaryColorLight,
-            colorEventName: ColorsPalette.backgroundColorLight,
-            colorEventTime: ColorsPalette.backgroundColorLight,
-            divider: false,
-            onTap: () {
-              print('Clicked -> ${events[index].toJson()}');
-              Navigator.push(
-                context,
-                FadeRoute(
-                  page: EventDetails(
-                    event: events[index],
-                    currentUser: widget.currentUser,
-                    onSignedOut: widget.onSignedOut,
+            padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+            child: ListTileItem(
+              eventName: events[index].title,
+              colorHeader: ColorsPalette.primaryColorLight,
+              colorEventName: ColorsPalette.backgroundColorLight,
+              colorEventTime: ColorsPalette.backgroundColorLight,
+              divider: false,
+              count: int.parse(events[index].countParticipants),
+              onTap: () {
+                print('Clicked -> ${events[index].toJson()}');
+                Navigator.push(
+                  context,
+                  FadeRoute(
+                    page: EventDetails(
+                      event: events[index],
+                      currentUser: widget.currentUser,
+                      onSignedOut: widget.onSignedOut,
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-        );
+                );
+              },
+            ));
       },
     );
   }

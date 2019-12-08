@@ -16,12 +16,17 @@ import 'package:mypresence/utils/transitions/fade_route.dart';
 
 class CreateEventOccurrences extends StatefulWidget {
   final String eventName;
+  final String eventDescription;
   final VoidCallback onSignedOut;
   final FirebaseUser currentUser;
   final model.Event event;
 
   CreateEventOccurrences(
-      {this.eventName, this.currentUser, this.onSignedOut, this.event});
+      {this.eventName,
+      this.eventDescription,
+      this.currentUser,
+      this.onSignedOut,
+      this.event});
 
   @override
   _CreateEventOccurrencesState createState() => _CreateEventOccurrencesState();
@@ -213,7 +218,7 @@ class _CreateEventOccurrencesState extends State<CreateEventOccurrences> {
                 if (widget.event == null) {
                   model.Event item = model.Event(
                       title: widget.eventName,
-                      descripton: "Custom Description",
+                      descripton: widget.eventDescription,
                       countParticipants: "0",
                       ownerId: widget.currentUser.uid);
                   _eventId = await _createEvent(item);

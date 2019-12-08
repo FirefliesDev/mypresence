@@ -62,8 +62,7 @@ class _EventDetailsState extends State<EventDetails> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 10, horizontal: 25),
                 child: Text(
-                  'Palestra sobre design, onde iremos abordar sobre todos '
-                  'os tipos de prototipação',
+                  widget.event.descripton,
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
                 ),

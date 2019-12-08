@@ -54,16 +54,13 @@ class FirebaseService {
   static Future<Occurrence> getOccurrenceById(
       String eventId, String occurrenceId) async {
     Occurrence occurrence;
-    print('ID OCURRENCE QR CODE: => ' + occurrenceId);
     final _itemRef =
         _databaseRef.child(FirebaseConstant.eventOccurrences).child(eventId);
     await _itemRef.once().then((DataSnapshot snapshot) {
       final value = snapshot.value as Map;
       for (final key in value.keys) {
         // occurrence = model.Event.fromJson(snapshot.value[key]);
-
         if (key == occurrenceId) {
-          print('KEY ' + key);
           occurrence = Occurrence.fromJson(snapshot.value[key]);
           break;
         }
@@ -78,6 +75,8 @@ class FirebaseService {
 
     final _itemRef =
         _databaseRef.child(FirebaseConstant.ownerEvents).child(userId);
+
+    print('FLAMENGO N E TIME');
 
     await _itemRef.once().then((DataSnapshot snapshot) {
       final value = snapshot.value as Map;
@@ -202,9 +201,26 @@ class FirebaseService {
     return _itemRef.onValue;
   }
 
+  /// WORKING ON THIS
+  static Future<void> updateOccurrencesGroupByDate(String eventId) async {
+    final _itemRef =
+        _databaseRef.child(FirebaseConstant.occurrencesGroupByDate);
+    await _itemRef.once().then((DataSnapshot snapshot) {
+      final value = snapshot.value as Map;
+      value.forEach((k, v) {
+        print('K: $k');
+        // var _ref = _databaseRef.child(FirebaseConstant.occurrencesGroupByDate).child(k).child(path);
+        print('V: $v');
+        final date = v as Map;
+        // teste
+      });
+    });
+  }
+
   /// Create EventParticipants
-  static Future<void> createEventParticipants(String eventId, User user) async {
-    List<User> participants = await getEventParticipants(eventId);
+  static Future<void> createEventParticipants(
+      model.Event item, User user) async {
+    List<User> participants = await getEventParticipants(item.id);
     bool exist = false;
 
     for (var i in participants) {
@@ -215,21 +231,21 @@ class FirebaseService {
     }
 
     if (!exist) {
-      var event = await getEventById(eventId);
+      var event = await getEventById(item.id);
       final _eventRef =
-          _databaseRef.child(FirebaseConstant.event).child(eventId);
+          _databaseRef.child(FirebaseConstant.event).child(item.id);
 
       final _ownerRef = _databaseRef
           .child(FirebaseConstant.ownerEvents)
-          .child(user.id)
-          .child(eventId);
+          .child(item.ownerId)
+          .child(item.id);
 
       int count = int.parse(event.countParticipants) + 1;
       _eventRef.child("count_participants").set(count.toString());
       _ownerRef.child("count_participants").set(count.toString());
 
       final _itemRef =
-          _databaseRef.child(FirebaseConstant.eventParticipants).child(eventId);
+          _databaseRef.child(FirebaseConstant.eventParticipants).child(item.id);
       _itemRef.child(user.id).set(user.toJson());
     }
   }

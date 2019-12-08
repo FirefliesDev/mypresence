@@ -37,6 +37,7 @@ dependencies:
   path_provider: ^1.4.2
   barcode_scan: ^1.0.0
   flutter_launcher_icons: ^0.7.3
+  sortedmap: ^0.4.2
 
 dev_dependencies:
   flutter_test:

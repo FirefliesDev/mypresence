@@ -151,7 +151,7 @@ class _HomeState extends State<Home> {
             return Container(
               margin: EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
               child: ListTileItem(
-                eventName: event.title, // ISSO AQUI VAI SER UM PROBLEMA FUTURO
+                eventName: event.title,
                 eventTime: item.timeStart,
                 location: item.local,
                 colorHeader: ColorsPalette.primaryColorLight,
@@ -195,59 +195,11 @@ class _HomeState extends State<Home> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: new Row(
-              children: <Widget>[
-                Icon(
-                  Icons.location_on,
-                  color: Colors.red,
-                  size: 25,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: Text("T12 - B202"),
-                  ),
-                ),
-                Expanded(
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 10),
-                        child: Icon(Icons.schedule,
-                            color: ColorsPalette.primaryColor, size: 22),
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            Jiffy(occurrence.date).MMMMEEEEd,
-                            style: TextStyle(
-                              inherit: true,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            "17:00",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
             content: new Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                Container(
                   child: Text(
                     event.title,
                     textAlign: TextAlign.center,
@@ -255,18 +207,117 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 40),
                   child: Text(
-                    'Palestra sobre design, onde iremos abordar sobre todos '
-                    'os tipos de prototipação',
+                    event.descripton,
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
                   ),
                 ),
+                Column(
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 5),
+                          child: Icon(
+                            Icons.date_range,
+                            color: Colors.indigo,
+                            size: 20,
+                          ),
+                        ),
+                        Text(
+                          Jiffy(occurrence.date).MMMMEEEEd,
+                          style: TextStyle(
+                            inherit: true,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 0, vertical: 5),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 5),
+                                  child: Icon(
+                                    Icons.schedule,
+                                    color: Colors.teal,
+                                    size: 20,
+                                  ),
+                                ),
+                                Column(
+                                  children: <Widget>[
+                                    Text(
+                                      occurrence.timeStart,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 0, horizontal: 3),
+                                  child: Text(
+                                    'às',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                                Column(
+                                  children: <Widget>[
+                                    Text(
+                                      occurrence.timeEnd,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 5),
+                          child: Icon(
+                            Icons.location_on,
+                            color: Colors.red,
+                            size: 20,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            occurrence.local,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
             actions: <Widget>[
-              // usually buttons at the bottom of the dialog
               new FlatButton(
                 child: new Text("Close"),
                 onPressed: () {

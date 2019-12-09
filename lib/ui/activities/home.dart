@@ -204,7 +204,7 @@ class _HomeState extends State<Home> {
                   child: Text(
                     event.title,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
                   ),
                 ),
                 Padding(
@@ -224,7 +224,7 @@ class _HomeState extends State<Home> {
                           child: Icon(
                             Icons.date_range,
                             color: Colors.indigo,
-                            size: 20,
+                            size: 24,
                           ),
                         ),
                         Text(
@@ -232,10 +232,16 @@ class _HomeState extends State<Home> {
                           style: TextStyle(
                             inherit: true,
                             fontWeight: FontWeight.w400,
-                            fontSize: 15,
+                            fontSize: 16,
                           ),
                         ),
                       ],
+                    ),
+                    Divider(
+                      color: ColorsPalette.textColorDark50,
+                      height: 20,
+                      indent: 5.0,
+                      endIndent: 5.0,
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -251,7 +257,7 @@ class _HomeState extends State<Home> {
                                   child: Icon(
                                     Icons.schedule,
                                     color: Colors.teal,
-                                    size: 20,
+                                    size: 24,
                                   ),
                                 ),
                                 Column(
@@ -260,7 +266,7 @@ class _HomeState extends State<Home> {
                                       occurrence.timeStart,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 15,
+                                        fontSize: 16,
                                       ),
                                     ),
                                   ],
@@ -272,7 +278,7 @@ class _HomeState extends State<Home> {
                                     'às',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w400,
-                                      fontSize: 15,
+                                      fontSize: 16,
                                     ),
                                   ),
                                 ),
@@ -282,7 +288,7 @@ class _HomeState extends State<Home> {
                                       occurrence.timeEnd,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 15,
+                                        fontSize: 16,
                                       ),
                                     ),
                                   ],
@@ -293,6 +299,12 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                     ),
+                    Divider(
+                      color: ColorsPalette.textColorDark50,
+                      height: 20,
+                      indent: 5.0,
+                      endIndent: 5.0,
+                    ),
                     Row(
                       children: <Widget>[
                         Padding(
@@ -300,7 +312,7 @@ class _HomeState extends State<Home> {
                           child: Icon(
                             Icons.location_on,
                             color: Colors.red,
-                            size: 20,
+                            size: 24,
                           ),
                         ),
                         Expanded(
@@ -308,7 +320,7 @@ class _HomeState extends State<Home> {
                             occurrence.local,
                             style: TextStyle(
                               fontWeight: FontWeight.w400,
-                              fontSize: 15,
+                              fontSize: 16,
                             ),
                           ),
                         ),
@@ -320,7 +332,7 @@ class _HomeState extends State<Home> {
             ),
             actions: <Widget>[
               new FlatButton(
-                child: new Text("Close"),
+                child: new Text("Fechar"),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },

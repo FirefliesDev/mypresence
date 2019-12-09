@@ -8,6 +8,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:mypresence/authentication/base_auth.dart';
 import 'package:mypresence/database/firebase_service.dart';
 import 'package:mypresence/model/event.dart';
+import 'package:mypresence/model/item.dart';
 import 'package:mypresence/model/occurrence.dart';
 import 'package:mypresence/model/user.dart';
 import 'package:mypresence/ui/widgets/custom_expansion_tile.dart' as cet;
@@ -36,7 +37,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    // FirebaseService.updateOccurrencesGroupByDate("eventId");
+    // FirebaseService.updateParticipantEvents(Event(id: "-Lva7i4WI4HCTEgLZZoc"));
   }
 
   @override

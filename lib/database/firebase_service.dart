@@ -17,6 +17,33 @@ class FirebaseService {
     return _id;
   }
 
+  /// Update Event
+  static Future<void> updateEvent(model.Event item) async {
+    final _itemRef = _databaseRef.child(FirebaseConstant.event).child(item.id);
+    // Map<String, dynamic> newValue = item.toJson();
+    _itemRef.update(item.toJson().cast<String, dynamic>());
+  }
+
+  /// Update Event
+  static Future<void> updateParticipantEvents(model.Event item) async {
+    final List<User> participants = await getEventParticipants(item.id);
+    for (var p in participants) {
+      var _partRef =
+          _databaseRef.child(FirebaseConstant.participantEvents).child(p.id);
+      _partRef.update(item.toJson().cast<String, dynamic>());
+    }
+  }
+
+  /// Update Event
+  static Future<void> updateOwnerEvent(model.Event item) async {
+    final _itemRef = _databaseRef
+        .child(FirebaseConstant.ownerEvents)
+        .child(item.ownerId)
+        .child(item.id);
+    // Map<String, dynamic> newValue = item.toJson();
+    _itemRef.update(item.toJson().cast<String, dynamic>());
+  }
+
   /// Get Events
   static Future<List<model.Event>> getEvents() async {
     List<model.Event> items = [];
@@ -201,22 +228,6 @@ class FirebaseService {
     return _itemRef.onValue;
   }
 
-  /// WORKING ON THIS
-  static Future<void> updateOccurrencesGroupByDate(String eventId) async {
-    final _itemRef =
-        _databaseRef.child(FirebaseConstant.occurrencesGroupByDate);
-    await _itemRef.once().then((DataSnapshot snapshot) {
-      final value = snapshot.value as Map;
-      value.forEach((k, v) {
-        print('K: $k');
-        // var _ref = _databaseRef.child(FirebaseConstant.occurrencesGroupByDate).child(k).child(path);
-        print('V: $v');
-        final date = v as Map;
-        // teste
-      });
-    });
-  }
-
   /// Create EventParticipants
   static Future<void> createEventParticipants(
       model.Event item, User user) async {
@@ -279,6 +290,7 @@ class FirebaseService {
     final _id = _itemRef.push().key;
 
     _itemRef.child(_id).set(item.toJson());
+    _itemRef.child("1");
   }
 
   ///

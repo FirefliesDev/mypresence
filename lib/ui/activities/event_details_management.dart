@@ -9,6 +9,7 @@ import 'package:mypresence/model/event.dart';
 import 'package:mypresence/model/occurrence.dart';
 import 'package:mypresence/model/user.dart';
 import 'package:mypresence/ui/activities/create_event_occurrences.dart';
+import 'package:mypresence/ui/activities/home_event_management.dart';
 import 'package:mypresence/ui/widgets/custom_expansion_tile.dart' as cet;
 import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
 import 'package:mypresence/ui/activities/details_occurrence.dart';
@@ -233,7 +234,45 @@ class _EventDetailsState extends State<EventDetails> {
                 }
                 break;
               case Action.delete:
-                print('DELETE EVENT');
+                String result = await FirebaseService.deleteEvent(widget.event);
+                if (result == "success") {
+                  Navigator.pop(context);
+
+                  Navigator.push(
+                    context,
+                    FadeRoute(
+                      page: HomeEventManagement(
+                        onSignedOut: widget.onSignedOut,
+                        currentUser: widget.currentUser,
+                      ),
+                    ),
+                  );
+
+                  Fluttertoast.showToast(
+                      msg: "Evento excluído",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIos: 1,
+                      fontSize: 16.0);
+                } else {
+                  print(result);
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Aviso'),
+                          content: Text(result),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text('Ok'),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            )
+                          ],
+                        );
+                      });
+                }
                 break;
               default:
             }
@@ -241,14 +280,14 @@ class _EventDetailsState extends State<EventDetails> {
           itemBuilder: (BuildContext context) => <PopupMenuEntry<Action>>[
             const PopupMenuItem<Action>(
               value: Action.edit,
-              child: Text('Edit'),
+              child: Text('Editar'),
             ),
             PopupMenuDivider(
               height: 10,
             ),
             const PopupMenuItem<Action>(
               value: Action.delete,
-              child: Text('Delete'),
+              child: Text('Excluir'),
             ),
           ],
         ),
@@ -447,12 +486,13 @@ class _MyDialogState extends State<MyDialog> {
 
     return AlertDialog(
       title: Center(child: Text("Editar evento")),
-      content: ListView(
-        shrinkWrap: true,
-        children: <Widget>[
-          _name,
-          _description,
-        ],
+      content: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            _name,
+            _description,
+          ],
+        ),
       ),
       actions: <Widget>[_btnCancel, _btnEdit],
     );

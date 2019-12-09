@@ -44,6 +44,27 @@ class FirebaseService {
     _itemRef.update(item.toJson().cast<String, dynamic>());
   }
 
+  /// Delete Event
+  static Future<String> deleteEvent(model.Event event) async {
+    String result;
+    final List<User> participants = await getEventParticipants(event.id);
+    if (participants.length == 0) {
+      final _itemRef = _databaseRef.child(FirebaseConstant.event);
+      _itemRef.child(event.id).remove();
+      final _ocurrenceRef =
+          _databaseRef.child(FirebaseConstant.eventOccurrences);
+      _ocurrenceRef.child(event.id).remove();
+      final _ownerRef =
+          _databaseRef.child(FirebaseConstant.ownerEvents).child(event.ownerId);
+      _ownerRef.child(event.id).remove();
+      result = "success";
+    } else {
+      print(participants.length);
+      result = "Não é permitido excluir eventos que contêm participantes";
+    }
+    return result;
+  }
+
   /// Get Events
   static Future<List<model.Event>> getEvents() async {
     List<model.Event> items = [];

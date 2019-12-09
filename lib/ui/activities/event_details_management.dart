@@ -18,6 +18,8 @@ import 'package:mypresence/utils/transitions/slide_route.dart';
 
 import 'dart:convert';
 
+enum Action { edit, delete }
+
 class EventDetails extends StatefulWidget {
   final Event event;
   final VoidCallback onSignedOut;
@@ -206,30 +208,50 @@ class _EventDetailsState extends State<EventDetails> {
       ),
       iconTheme: IconThemeData(color: ColorsPalette.textColorLight),
       actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.edit),
-          onPressed: () async {
-            _titleController.text = widget.event.title;
-            _descController.text = widget.event.descripton;
+        PopupMenuButton<Action>(
+          onSelected: (Action result) async {
+            switch (result) {
+              case Action.edit:
+                _titleController.text = widget.event.title;
+                _descController.text = widget.event.descripton;
 
-            var retValue = await showDialog(
-                context: context,
-                builder: (_) {
-                  return MyDialog(
-                    event: widget.event,
-                    titleController: _titleController,
-                    descController: _descController,
-                  );
-                });
-            if (retValue != null) {
-              Map map = json.decode(retValue);
-              setState(() {
-                widget.event.title = map['title'];
-                widget.event.descripton = map['description'];
-              });
+                var retValue = await showDialog(
+                    context: context,
+                    builder: (_) {
+                      return MyDialog(
+                        event: widget.event,
+                        titleController: _titleController,
+                        descController: _descController,
+                      );
+                    });
+                if (retValue != null) {
+                  Map map = json.decode(retValue);
+                  setState(() {
+                    widget.event.title = map['title'];
+                    widget.event.descripton = map['description'];
+                  });
+                }
+                break;
+              case Action.delete:
+                print('DELETE EVENT');
+                break;
+              default:
             }
           },
-        )
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<Action>>[
+            const PopupMenuItem<Action>(
+              value: Action.edit,
+              child: Text('Edit'),
+            ),
+            PopupMenuDivider(
+              height: 10,
+            ),
+            const PopupMenuItem<Action>(
+              value: Action.delete,
+              child: Text('Delete'),
+            ),
+          ],
+        ),
       ],
     );
   }

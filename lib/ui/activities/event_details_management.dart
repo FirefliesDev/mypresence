@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:mypresence/database/firebase_service.dart';
 import 'package:mypresence/model/event.dart';
@@ -9,12 +10,17 @@ import 'package:mypresence/model/occurrence.dart';
 import 'package:mypresence/model/user.dart';
 import 'package:mypresence/ui/activities/create_event_occurrences.dart';
 import 'package:mypresence/ui/activities/create_new_participant.dart';
+import 'package:mypresence/ui/activities/home_event_management.dart';
 import 'package:mypresence/ui/widgets/custom_expansion_tile.dart' as cet;
 import 'package:mypresence/ui/widgets/custom_list_tile_item.dart';
 import 'package:mypresence/ui/activities/details_occurrence.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 import 'package:mypresence/utils/transitions/fade_route.dart';
 import 'package:mypresence/utils/transitions/slide_route.dart';
+
+import 'dart:convert';
+
+enum Action { edit, delete }
 
 class EventDetails extends StatefulWidget {
   final Event event;
@@ -30,6 +36,8 @@ class EventDetails extends StatefulWidget {
 class _EventDetailsState extends State<EventDetails> {
   List<Occurrence> _occurrences = new List();
   List<User> _participants = new List();
+  TextEditingController _titleController = TextEditingController();
+  TextEditingController _descController = TextEditingController();
   var _futureOccurrence;
   var _futureParticipants;
 
@@ -46,6 +54,7 @@ class _EventDetailsState extends State<EventDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       appBar: _buildAppBar(),
       body: SingleChildScrollView(
         child: SafeArea(
@@ -205,10 +214,94 @@ class _EventDetailsState extends State<EventDetails> {
   Widget _buildAppBar() {
     return AppBar(
       title: Text(
-        'Gestão de Eventos',
+        widget.event.title,
         style: TextStyle(color: ColorsPalette.textColorLight),
       ),
       iconTheme: IconThemeData(color: ColorsPalette.textColorLight),
+      actions: <Widget>[
+        PopupMenuButton<Action>(
+          onSelected: (Action result) async {
+            switch (result) {
+              case Action.edit:
+                _titleController.text = widget.event.title;
+                _descController.text = widget.event.descripton;
+
+                var retValue = await showDialog(
+                    context: context,
+                    builder: (_) {
+                      return MyDialog(
+                        event: widget.event,
+                        titleController: _titleController,
+                        descController: _descController,
+                      );
+                    });
+                if (retValue != null) {
+                  Map map = json.decode(retValue);
+                  setState(() {
+                    widget.event.title = map['title'];
+                    widget.event.descripton = map['description'];
+                  });
+                }
+                break;
+              case Action.delete:
+                String result = await FirebaseService.deleteEvent(widget.event);
+                if (result == "success") {
+                  Navigator.pop(context);
+
+                  Navigator.push(
+                    context,
+                    FadeRoute(
+                      page: HomeEventManagement(
+                        onSignedOut: widget.onSignedOut,
+                        currentUser: widget.currentUser,
+                      ),
+                    ),
+                  );
+
+                  Fluttertoast.showToast(
+                      msg: "Evento excluído",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIos: 1,
+                      fontSize: 16.0);
+                } else {
+                  print(result);
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Aviso'),
+                          content: Text(result),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text('Ok'),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            )
+                          ],
+                        );
+                      });
+                }
+                break;
+              default:
+            }
+          },
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<Action>>[
+            const PopupMenuItem<Action>(
+              value: Action.edit,
+              child: Text('Editar'),
+            ),
+            PopupMenuDivider(
+              height: 10,
+            ),
+            const PopupMenuItem<Action>(
+              value: Action.delete,
+              child: Text('Excluir'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -320,6 +413,98 @@ class _EventDetailsState extends State<EventDetails> {
           ),
         );
       },
+    );
+  }
+}
+
+class MyDialog extends StatefulWidget {
+  final Event event;
+  final TextEditingController titleController;
+  final TextEditingController descController;
+
+  MyDialog({this.event, this.titleController, this.descController});
+
+  @override
+  _MyDialogState createState() => _MyDialogState();
+}
+
+class _MyDialogState extends State<MyDialog> {
+  @override
+  Widget build(BuildContext context) {
+    /// Name
+    final _name = TextField(
+      controller: widget.titleController,
+      decoration: InputDecoration(
+        labelText: 'Nome',
+      ),
+      onChanged: (text) {
+        if (text.length == 0) {
+          setState(() {});
+        } else {
+          setState(() {});
+        }
+      },
+    );
+
+    /// Description
+    final _description = TextFormField(
+        controller: widget.descController,
+        decoration: InputDecoration(
+          labelText: 'Descrição',
+        ),
+        onChanged: (text) {
+          if (text.length == 0) {
+            setState(() {});
+          } else {
+            setState(() {});
+          }
+        });
+
+    final _btnCancel = FlatButton(
+      child: new Text("Cancelar"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    final _btnEdit = FlatButton(
+      child: new Text('Editar'),
+      onPressed: (widget.titleController.text.isEmpty ||
+              widget.descController.text.isEmpty)
+          ? null
+          : () {
+              widget.event.title = widget.titleController.text;
+              widget.event.descripton = widget.descController.text;
+
+              FirebaseService.updateEvent(widget.event);
+              FirebaseService.updateOwnerEvent(widget.event);
+              FirebaseService.updateParticipantEvents(widget.event);
+
+              Map<String, dynamic> result = new Map();
+              result['title'] = widget.titleController.text;
+              result['description'] = widget.descController.text;
+
+              Navigator.pop(context, json.encode(result));
+
+              Fluttertoast.showToast(
+                  msg: "Evento atualizado",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIos: 1,
+                  fontSize: 16.0);
+            },
+    );
+
+    return AlertDialog(
+      title: Center(child: Text("Editar evento")),
+      content: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            _name,
+            _description,
+          ],
+        ),
+      ),
+      actions: <Widget>[_btnCancel, _btnEdit],
     );
   }
 }

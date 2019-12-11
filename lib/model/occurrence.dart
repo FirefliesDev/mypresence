@@ -33,4 +33,26 @@ class Occurrence {
     data['qrCode'] = this.qrCode;
     return data;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Occurrence &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          local == other.local &&
+          date == other.date &&
+          timeStart == other.timeStart &&
+          timeEnd == other.timeEnd &&
+          qrCode == other.qrCode;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      local.hashCode ^
+      date.hashCode ^
+      local.hashCode ^
+      timeStart.hashCode ^
+      timeEnd.hashCode ^
+      qrCode.hashCode;
 }

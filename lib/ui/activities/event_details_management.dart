@@ -5,6 +5,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:mypresence/database/firebase_service.dart';
+import 'package:mypresence/database/firebase_service.dart' as prefix0;
 import 'package:mypresence/model/event.dart';
 import 'package:mypresence/model/occurrence.dart';
 import 'package:mypresence/model/user.dart';
@@ -35,6 +36,8 @@ class EventDetails extends StatefulWidget {
 class _EventDetailsState extends State<EventDetails> {
   List<Occurrence> _occurrences = new List();
   List<User> _participants = new List();
+  User _tempParticipant;
+  int _tempIndex;
   TextEditingController _titleController = TextEditingController();
   TextEditingController _descController = TextEditingController();
   var _futureOccurrence;
@@ -297,6 +300,7 @@ class _EventDetailsState extends State<EventDetails> {
 
   ///
   Widget _buildListParticipants() {
+    List<Occurrence> _tmpOccurrences = [];
     final String _emptyPhotoURL =
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
     return ListView.builder(
@@ -304,64 +308,117 @@ class _EventDetailsState extends State<EventDetails> {
       shrinkWrap: true,
       itemCount: _participants == null ? 0 : _participants.length,
       itemBuilder: (context, index) {
-        return Padding(
-          padding: index == 0
-              ? const EdgeInsets.all(0)
-              : const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
-          child: Column(
-            children: <Widget>[
-              _participants == null
-                  ? Text('Nenhum participante encontrado.')
-                  : Row(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8, horizontal: 20),
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: CircleAvatar(
-                              radius: 25.0,
-                              backgroundColor:
-                                  ColorsPalette.backgroundColorLight,
-                              backgroundImage: NetworkImage(
-                                  _participants[index].photoUrl != null
-                                      ? _participants[index].photoUrl
-                                      : _emptyPhotoURL),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  _participants[index].displayName,
-                                  style: TextStyle(
-                                    inherit: true,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                Text(
-                                  _participants[index].identifier,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-              Divider(
-                indent: 30,
-                endIndent: 30,
+        return Dismissible(
+          key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment(0.9, 0),
+            child: Icon(
+              Icons.delete_forever,
+              color: ColorsPalette.background,
+            ),
+          ),
+          onDismissed: (direction) async {
+            _tempParticipant = _participants[index];
+            _tempIndex = index;
+
+            final _snack = SnackBar(
+              content: Text('Participante removido com sucesso.'),
+              duration: Duration(seconds: 3),
+              action: SnackBarAction(
+                label: 'Desfazer',
+                onPressed: () async {
+                  
+                  await FirebaseService.createEventParticipants(
+                      widget.event, _tempParticipant);
+                  await FirebaseService.createParticipantEvents(
+                      _tempParticipant.id, widget.event);
+                  for (var occurrence in _tmpOccurrences) {
+                    await FirebaseService.createOccurrenceGroupByDate(
+                        _tempParticipant.id, occurrence);
+                  }
+                  setState(() {
+                    _participants.insert(_tempIndex, _tempParticipant);
+                  });
+                },
               ),
-            ],
+            );
+
+            // Delete from List
+            _participants.removeAt(index);
+
+            await FirebaseService.deleteEventParticipants(
+                widget.event, _tempParticipant.id);
+            await FirebaseService.deleteParticipantEvents(
+                _tempParticipant.id, widget.event.id);
+            _tmpOccurrences = await FirebaseService.deleteOccurrenceGroupByDate(
+                _tempParticipant.id, widget.event.id);
+
+            print('DATA DELETED !');
+
+            Scaffold.of(context).removeCurrentSnackBar();
+            Scaffold.of(context).showSnackBar(_snack);
+          },
+          child: Padding(
+            padding: index == 0
+                ? const EdgeInsets.all(0)
+                : const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+            child: Column(
+              children: <Widget>[
+                _participants == null
+                    ? Text('Nenhum participante encontrado.')
+                    : Row(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 20),
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: CircleAvatar(
+                                radius: 25.0,
+                                backgroundColor:
+                                    ColorsPalette.backgroundColorLight,
+                                backgroundImage: NetworkImage(
+                                    _participants[index].photoUrl != null
+                                        ? _participants[index].photoUrl
+                                        : _emptyPhotoURL),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    _participants[index].displayName,
+                                    style: TextStyle(
+                                      inherit: true,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  Text(
+                                    _participants[index].identifier,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                Divider(
+                  indent: 30,
+                  endIndent: 30,
+                ),
+              ],
+            ),
           ),
         );
       },

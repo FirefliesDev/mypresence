@@ -20,7 +20,6 @@ class FirebaseService {
   /// Update Event
   static Future<void> updateEvent(model.Event item) async {
     final _itemRef = _databaseRef.child(FirebaseConstant.event).child(item.id);
-    // Map<String, dynamic> newValue = item.toJson();
     _itemRef.update(item.toJson().cast<String, dynamic>());
   }
 
@@ -40,7 +39,6 @@ class FirebaseService {
         .child(FirebaseConstant.ownerEvents)
         .child(item.ownerId)
         .child(item.id);
-    // Map<String, dynamic> newValue = item.toJson();
     _itemRef.update(item.toJson().cast<String, dynamic>());
   }
 
@@ -124,8 +122,6 @@ class FirebaseService {
     final _itemRef =
         _databaseRef.child(FirebaseConstant.ownerEvents).child(userId);
 
-    print('FLAMENGO N E TIME');
-
     await _itemRef.once().then((DataSnapshot snapshot) {
       final value = snapshot.value as Map;
 
@@ -182,6 +178,51 @@ class FirebaseService {
     return items;
   }
 
+  /// Delete Event
+  static Future<void> deleteEventParticipants(
+      String eventId, String participantId) async {
+    final _itemRef =
+        _databaseRef.child(FirebaseConstant.eventParticipants).child(eventId);
+    _itemRef.child(participantId).remove();
+  }
+
+  /// Delete Event
+  static Future<void> deleteParticipantEvents(
+      String participantId, String eventId) async {
+    final _itemRef = _databaseRef
+        .child(FirebaseConstant.participantEvents)
+        .child(participantId);
+    _itemRef.child(eventId).remove();
+  }
+
+  /// Create EventOccurrence
+  static Future<List<Occurrence>> deleteOccurrenceGroupByDate(
+      String userId, String eventId) async {
+    List<Occurrence> _occurrences = await getEventOccurrences(eventId);
+    List<Occurrence> _tmpOccurrences = [];
+    final _itemRef = _databaseRef
+        .child(FirebaseConstant.occurrencesGroupByDate)
+        .child(userId);
+    await _itemRef.once().then((DataSnapshot snapshot) {
+      final value = snapshot.value as Map;
+      if (value != null) {
+        for (final key in value.keys) {
+          var t = value[key] as Map;
+          t.forEach((k, v) {
+            Occurrence occurrence = Occurrence.fromJson(v);
+            _tmpOccurrences.add(occurrence);
+            for (Occurrence item in _occurrences) {
+              if(item == occurrence){
+                _itemRef.child(key).child(occurrence.id).remove();
+              }
+            }
+          });
+        }
+      }
+    });
+    return _tmpOccurrences;
+  }
+
   /// Get Event's Occurrences
   static Future<List<Occurrence>> getChildrenGroupBy(
       String userId, String key) async {
@@ -218,16 +259,10 @@ class FirebaseService {
       model.Event event, List<Occurrence> occurrences) async {
     final _itemRef =
         _databaseRef.child(FirebaseConstant.eventOccurrences).child(event.id);
-    //
-    // final _groupByRef =
-    //     _databaseRef.child(FirebaseConstant.eventsByDate).child(userId);
     occurrences.forEach((item) {
       final occurrenceId = _itemRef.push().key;
       item.id = occurrenceId;
       _itemRef.child(occurrenceId).set(item.toJson());
-
-      // TODO: Insert events_by_date
-      // _groupByRef.child(item.date).child(event.id).set(item.toJson());
     });
   }
 
@@ -300,8 +335,6 @@ class FirebaseService {
   /// Create User
   static Future<void> createUser(User item) async {
     final _itemRef = _databaseRef.child(FirebaseConstant.user);
-    // final _id = _itemRef.push().key;
-    // item.id = _id;
     _itemRef.child(item.id).set(item.toJson());
   }
 

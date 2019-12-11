@@ -180,10 +180,19 @@ class FirebaseService {
 
   /// Delete Event
   static Future<void> deleteEventParticipants(
-      String eventId, String participantId) async {
+      model.Event item, String participantId) async {
     final _itemRef =
-        _databaseRef.child(FirebaseConstant.eventParticipants).child(eventId);
+        _databaseRef.child(FirebaseConstant.eventParticipants).child(item.id);
     _itemRef.child(participantId).remove();
+    final _eventRef = _databaseRef.child(FirebaseConstant.event).child(item.id);
+    final _ownerRef = _databaseRef
+        .child(FirebaseConstant.ownerEvents)
+        .child(item.ownerId)
+        .child(item.id);
+
+    int count = int.parse(item.countParticipants) - 1;
+    _eventRef.child("count_participants").set(count.toString());
+    _ownerRef.child("count_participants").set(count.toString());
   }
 
   /// Delete Event
@@ -212,7 +221,7 @@ class FirebaseService {
             Occurrence occurrence = Occurrence.fromJson(v);
             _tmpOccurrences.add(occurrence);
             for (Occurrence item in _occurrences) {
-              if(item == occurrence){
+              if (item == occurrence) {
                 _itemRef.child(key).child(occurrence.id).remove();
               }
             }

@@ -329,6 +329,7 @@ class _EventDetailsState extends State<EventDetails> {
               action: SnackBarAction(
                 label: 'Desfazer',
                 onPressed: () async {
+                  
                   await FirebaseService.createEventParticipants(
                       widget.event, _tempParticipant);
                   await FirebaseService.createParticipantEvents(
@@ -339,7 +340,6 @@ class _EventDetailsState extends State<EventDetails> {
                   }
                   setState(() {
                     _participants.insert(_tempIndex, _tempParticipant);
-                    print('DATA RESTORED !');
                   });
                 },
               ),
@@ -349,7 +349,7 @@ class _EventDetailsState extends State<EventDetails> {
             _participants.removeAt(index);
 
             await FirebaseService.deleteEventParticipants(
-                widget.event.id, _tempParticipant.id);
+                widget.event, _tempParticipant.id);
             await FirebaseService.deleteParticipantEvents(
                 _tempParticipant.id, widget.event.id);
             _tmpOccurrences = await FirebaseService.deleteOccurrenceGroupByDate(

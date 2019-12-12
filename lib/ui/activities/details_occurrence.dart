@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -6,7 +7,9 @@ import 'package:jiffy/jiffy.dart';
 import 'package:mypresence/database/firebase_service.dart';
 import 'package:mypresence/model/event.dart';
 import 'package:mypresence/model/occurrence.dart';
+import 'package:mypresence/ui/activities/event_details_management.dart';
 import 'package:mypresence/utils/colors_palette.dart';
+import 'package:mypresence/utils/transitions/fade_route.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import 'dart:io';
@@ -19,8 +22,11 @@ import 'package:path_provider/path_provider.dart';
 class DetailsOccurrence extends StatefulWidget {
   final Occurrence occurrence;
   final Event event;
+  final VoidCallback onSignedOut;
+  final FirebaseUser currentUser;
 
-  DetailsOccurrence({this.occurrence, this.event});
+  DetailsOccurrence(
+      {this.occurrence, this.event, this.onSignedOut, this.currentUser});
 
   @override
   _DetailsOccurrenceState createState() => _DetailsOccurrenceState();
@@ -45,7 +51,10 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
       setState(() {
         // this._showQrCode = true;
         print('created qrcode widget');
-        this._qrCodeValue = '${widget.occurrence.id}mypresence${widget.event.id}';
+        this._qrCodeValue =
+            '${widget.occurrence.id}mypresence${widget.event.id}';
+
+        print('EVENT => ${widget.event.id}');
       });
     }
   }
@@ -131,26 +140,6 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
                   ),
                 ),
-                // Visibility(
-                //   child: Padding(
-                //     padding: const EdgeInsets.all(15.0),
-                //     child: ButtonTheme(
-                //       minWidth: 200.0,
-                //       height: 45.0,
-                //       child: RaisedButton(
-                //         onPressed: _generateQrCode,
-                //         color: ColorsPalette.accentColor,
-                //         shape: RoundedRectangleBorder(
-                //           borderRadius: new BorderRadius.circular(25.0),
-                //         ),
-                //         child: const Text('Gerar QRCode',
-                //             style:
-                //                 TextStyle(fontSize: 20, color: Colors.white)),
-                //       ),
-                //     ),
-                //   ),
-                //   visible: !_showQrCode,
-                // ),
                 _buildQrCode(value: _qrCodeValue),
               ],
             ),
@@ -168,6 +157,65 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
         style: TextStyle(color: ColorsPalette.textColorLight),
       ),
       iconTheme: IconThemeData(color: ColorsPalette.textColorLight),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.delete_forever),
+          onPressed: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text('Confirmar exclusão'),
+                    content: Text(
+                        'Você tem certeza que deseja excluir essa ocorrência?'),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: new Text(
+                          "Cancelar",
+                          style:
+                              TextStyle(color: ColorsPalette.textColorDark90),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      FlatButton(
+                        child: Text(
+                          'Excluir',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        onPressed: () {
+                          FirebaseService.deleteEventOccurrences(
+                              widget.event, widget.occurrence.id);
+
+                          FirebaseService.getEventParticipants(widget.event.id)
+                              .then((participants) async {
+                            print(participants.length);
+                            for (var item in participants) {
+                              await FirebaseService.deleteOccurrenceGroupByDate(
+                                  item.id, widget.event.id,
+                                  occurrenceId: widget.occurrence.id);
+                            }
+                          });
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            FadeRoute(
+                              page: EventDetails(
+                                event: widget.event,
+                                onSignedOut: widget.onSignedOut,
+                                currentUser: widget.currentUser,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    ],
+                  );
+                });
+          },
+        )
+      ],
     );
   }
 
@@ -218,8 +266,6 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
       var file = await new File('${tempDir.path}/image.png').create();
       await file.writeAsBytes(pngBytes);
 
-      print('${tempDir.path}/image.png');
-//intent.putExtra(Intent.EXTRA_TEXT, "Evento: " + event.name + "\nData: " + data)
       await channel.invokeMethod('shareImage', {
         'path': 'image.png',
         'message':

@@ -151,10 +151,12 @@ class FirebaseService {
         _databaseRef.child(FirebaseConstant.eventOccurrences).child(eventId);
     await _itemRef.once().then((DataSnapshot snapshot) {
       final value = snapshot.value as Map;
-      for (final key in value.keys) {
-        Occurrence i = Occurrence.fromJson(snapshot.value[key]);
-        items.add(i);
-        print(i.toJson());
+      if (value != null) {
+        for (final key in value.keys) {
+          Occurrence i = Occurrence.fromJson(snapshot.value[key]);
+          items.add(i);
+          print(i.toJson());
+        }
       }
       print(items.toString());
     });
@@ -196,6 +198,14 @@ class FirebaseService {
   }
 
   /// Delete Event
+  static Future<void> deleteEventOccurrences(
+      model.Event item, String occurrenceId) async {
+    final _itemRef =
+        _databaseRef.child(FirebaseConstant.eventOccurrences).child(item.id);
+    _itemRef.child(occurrenceId).remove();
+  }
+
+  /// Delete Event
   static Future<void> deleteParticipantEvents(
       String participantId, String eventId) async {
     final _itemRef = _databaseRef
@@ -206,29 +216,45 @@ class FirebaseService {
 
   /// Create EventOccurrence
   static Future<List<Occurrence>> deleteOccurrenceGroupByDate(
-      String userId, String eventId) async {
+      String userId, String eventId,
+      {String occurrenceId = ""}) async {
     List<Occurrence> _occurrences = await getEventOccurrences(eventId);
     List<Occurrence> _tmpOccurrences = [];
     final _itemRef = _databaseRef
         .child(FirebaseConstant.occurrencesGroupByDate)
         .child(userId);
-    await _itemRef.once().then((DataSnapshot snapshot) {
-      final value = snapshot.value as Map;
-      if (value != null) {
-        for (final key in value.keys) {
-          var t = value[key] as Map;
-          t.forEach((k, v) {
-            Occurrence occurrence = Occurrence.fromJson(v);
-            _tmpOccurrences.add(occurrence);
-            for (Occurrence item in _occurrences) {
-              if (item == occurrence) {
-                _itemRef.child(key).child(occurrence.id).remove();
+
+    if (occurrenceId == "") {
+      await _itemRef.once().then((DataSnapshot snapshot) {
+        final value = snapshot.value as Map;
+        if (value != null) {
+          for (final key in value.keys) {
+            var t = value[key] as Map;
+            t.forEach((k, v) {
+              Occurrence occurrence = Occurrence.fromJson(v);
+              _tmpOccurrences.add(occurrence);
+              for (Occurrence item in _occurrences) {
+                if (item == occurrence) {
+                  _itemRef.child(key).child(occurrence.id).remove();
+                }
               }
-            }
-          });
+            });
+          }
         }
-      }
-    });
+      });
+    } else {
+      await _itemRef.once().then((DataSnapshot snapshot) {
+        final value = snapshot.value as Map;
+        if (value != null) {
+          for (final key in value.keys) {
+            var t = value[key] as Map;
+            t.forEach((k, v) {
+              _itemRef.child(key).child(occurrenceId).remove();
+            });
+          }
+        }
+      });
+    }
     return _tmpOccurrences;
   }
 

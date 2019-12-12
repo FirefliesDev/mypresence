@@ -5,7 +5,6 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:mypresence/database/firebase_service.dart';
-import 'package:mypresence/database/firebase_service.dart' as prefix0;
 import 'package:mypresence/model/event.dart';
 import 'package:mypresence/model/occurrence.dart';
 import 'package:mypresence/model/user.dart';
@@ -267,7 +266,10 @@ class _EventDetailsState extends State<EventDetails> {
                           content: Text(result),
                           actions: <Widget>[
                             FlatButton(
-                              child: Text('Ok'),
+                              child: Text('Ok',
+                                  style: TextStyle(
+                                      color: ColorsPalette.textColorDark,
+                                      fontWeight: FontWeight.w700)),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
@@ -329,7 +331,6 @@ class _EventDetailsState extends State<EventDetails> {
               action: SnackBarAction(
                 label: 'Desfazer',
                 onPressed: () async {
-                  
                   await FirebaseService.createEventParticipants(
                       widget.event, _tempParticipant);
                   await FirebaseService.createParticipantEvents(
@@ -451,9 +452,10 @@ class _EventDetailsState extends State<EventDetails> {
                 context,
                 SlideLeftRoute(
                   page: DetailsOccurrence(
-                    occurrence: _occurrences[index],
-                    event: widget.event,
-                  ),
+                      occurrence: _occurrences[index],
+                      event: widget.event,
+                      onSignedOut: widget.onSignedOut,
+                      currentUser: widget.currentUser),
                 ),
               );
             },
@@ -508,13 +510,16 @@ class _MyDialogState extends State<MyDialog> {
         });
 
     final _btnCancel = FlatButton(
-      child: new Text("Cancelar"),
+      child: new Text("Cancelar",
+          style: TextStyle(color: ColorsPalette.textColorDark90)),
       onPressed: () {
         Navigator.of(context).pop();
       },
     );
     final _btnEdit = FlatButton(
-      child: new Text('Editar'),
+      child: new Text('Editar',
+          style: TextStyle(
+              color: ColorsPalette.textColorDark, fontWeight: FontWeight.w700)),
       onPressed: (widget.titleController.text.isEmpty ||
               widget.descController.text.isEmpty)
           ? null

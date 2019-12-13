@@ -7,9 +7,11 @@ import 'package:jiffy/jiffy.dart';
 import 'package:mypresence/database/firebase_service.dart';
 import 'package:mypresence/model/event.dart';
 import 'package:mypresence/model/occurrence.dart';
+import 'package:mypresence/ui/activities/attendances_sheet.dart';
 import 'package:mypresence/ui/activities/event_details_management.dart';
 import 'package:mypresence/utils/colors_palette.dart';
 import 'package:mypresence/utils/transitions/fade_route.dart';
+import 'package:mypresence/utils/transitions/slide_route.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import 'dart:io';
@@ -61,6 +63,26 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
 
   @override
   Widget build(BuildContext context) {
+    final _attendanceSheet = Row(
+      children: <Widget>[
+        Expanded(
+          child: Text(
+            'Lista de presença',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+          ),
+        ),
+        Icon(
+          Icons.chevron_right,
+          color: Colors.grey,
+          size: 24,
+        )
+      ],
+    );
+
     return Scaffold(
       appBar: _buildAppBar(),
       body: SingleChildScrollView(
@@ -141,6 +163,25 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
                   ),
                 ),
                 _buildQrCode(value: _qrCodeValue),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 30),
+                  child: GestureDetector(
+                    child: _attendanceSheet,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        SlideLeftRoute(
+                          page: AttendancesSheet(
+                            occurrence: widget.occurrence,
+                            currentUser: widget.currentUser,
+                            onSignedOut: widget.onSignedOut,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                )
               ],
             ),
           ),

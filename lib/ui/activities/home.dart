@@ -360,16 +360,19 @@ class _HomeState extends State<Home> {
         _resultQrCode = qrResult;
         print('result qr code ' + _resultQrCode);
       });
-      await _createEventParticipants(
-          qrEvent,
-          User(
-              id: widget.currentUser.uid,
-              displayName: widget.currentUser.displayName,
-              identifier: widget.currentUser.email,
-              photoUrl: widget.currentUser.photoUrl,
-              provider: 'Google'));
+      User _user = User(
+          id: widget.currentUser.uid,
+          displayName: widget.currentUser.displayName,
+          identifier: widget.currentUser.email,
+          photoUrl: widget.currentUser.photoUrl,
+          provider: 'Google');
+      await _createEventParticipants(qrEvent, _user);
       await _createParticipantEvents(widget.currentUser.uid, qrEvent);
       await _createOccurrenceGroupByDate(widget.currentUser.uid, qrOccurrence);
+      final _ocurrences = await FirebaseService.getEventOccurrences(qrEventId);
+      await FirebaseService.createAttendanceSheet(_ocurrences, _user);
+
+      FirebaseService.updateAttendanceSheet(qrOccurrenceId, _user.id);
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
         setState(() {

@@ -136,6 +136,14 @@ class FirebaseService {
     return items;
   }
 
+  ///
+  static Stream<Event> getAttendanceSheet(String occurrenceId) {
+    final _itemRef = _databaseRef
+        .child(FirebaseConstant.attendanceSheet)
+        .child(occurrenceId);
+    return _itemRef.onValue;
+  }
+
   /// Create Occurrence
   static Future<void> createOccurrence(Occurrence item) async {
     final _itemRef = _databaseRef.child(FirebaseConstant.occurrence);
@@ -323,7 +331,7 @@ class FirebaseService {
     });
 
     final _participants = await getEventParticipants(event.id);
-    
+
     _participants.forEach((participant) {
       createAttendanceSheet(occurrences, participant);
     });

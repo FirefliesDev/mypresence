@@ -46,17 +46,10 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
     if (widget.occurrence.qrCode == "") {
       print('generated_database');
       _generateQrCode();
-      // setState(() {
-      //   this._showQrCode = false;
-      // });
     } else {
       setState(() {
-        // this._showQrCode = true;
-        print('created qrcode widget');
         this._qrCodeValue =
             '${widget.occurrence.id}mypresence${widget.event.id}';
-
-        print('EVENT => ${widget.event.id}');
       });
     }
   }
@@ -162,7 +155,17 @@ class _DetailsOccurrenceState extends State<DetailsOccurrence> {
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
                   ),
                 ),
+                Divider(
+                  indent: 30,
+                  endIndent: 30,
+                  color: ColorsPalette.textColorDark50,
+                ),
                 _buildQrCode(value: _qrCodeValue),
+                Divider(
+                  indent: 30,
+                  endIndent: 30,
+                  color: ColorsPalette.textColorDark50,
+                ),
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 30),

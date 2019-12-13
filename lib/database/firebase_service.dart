@@ -136,12 +136,42 @@ class FirebaseService {
     return items;
   }
 
+  ///
+  static Stream<Event> getAttendanceSheet(String occurrenceId) {
+    final _itemRef = _databaseRef
+        .child(FirebaseConstant.attendanceSheet)
+        .child(occurrenceId);
+    return _itemRef.onValue;
+  }
+
   /// Create Occurrence
   static Future<void> createOccurrence(Occurrence item) async {
     final _itemRef = _databaseRef.child(FirebaseConstant.occurrence);
     final _id = _itemRef.push().key;
     item.id = _id;
     _itemRef.child(_id).set(item.toJson());
+  }
+
+  ///
+  static Future<void> createAttendanceSheet(
+      List<Occurrence> occurrences, User participant) async {
+    final _itemRef = _databaseRef.child(FirebaseConstant.attendanceSheet);
+    for (var ocurrence in occurrences) {
+      var _newRef = _itemRef.child(ocurrence.id).child(participant.id);
+      _newRef.set(participant.toJson());
+      _newRef.child("present").set(false);
+    }
+  }
+
+  ///
+  static Future<void> updateAttendanceSheet(
+      String occurenceId, String participantId) async {
+    final _itemRef = _databaseRef
+        .child(FirebaseConstant.attendanceSheet)
+        .child(occurenceId)
+        .child(participantId);
+    print('O_ID: $occurenceId \n P_ID: $participantId');
+    _itemRef.child("present").set(true);
   }
 
   /// Get Event's Occurrences
@@ -298,6 +328,12 @@ class FirebaseService {
       final occurrenceId = _itemRef.push().key;
       item.id = occurrenceId;
       _itemRef.child(occurrenceId).set(item.toJson());
+    });
+
+    final _participants = await getEventParticipants(event.id);
+
+    _participants.forEach((participant) {
+      createAttendanceSheet(occurrences, participant);
     });
   }
 

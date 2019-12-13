@@ -36,6 +36,8 @@ class EventDetails extends StatefulWidget {
 class _EventDetailsState extends State<EventDetails> {
   List<Occurrence> _occurrences = new List();
   List<User> _participants = new List();
+  User _tempParticipant;
+  int _tempIndex;
   TextEditingController _titleController = TextEditingController();
   TextEditingController _descController = TextEditingController();
   var _futureOccurrence;
@@ -274,7 +276,10 @@ class _EventDetailsState extends State<EventDetails> {
                           content: Text(result),
                           actions: <Widget>[
                             FlatButton(
-                              child: Text('Ok'),
+                              child: Text('Ok',
+                                  style: TextStyle(
+                                      color: ColorsPalette.textColorDark,
+                                      fontWeight: FontWeight.w700)),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
@@ -307,6 +312,7 @@ class _EventDetailsState extends State<EventDetails> {
 
   ///
   Widget _buildListParticipants() {
+    List<Occurrence> _tmpOccurrences = [];
     final String _emptyPhotoURL =
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
     return ListView.builder(
@@ -314,64 +320,116 @@ class _EventDetailsState extends State<EventDetails> {
       shrinkWrap: true,
       itemCount: _participants == null ? 0 : _participants.length,
       itemBuilder: (context, index) {
-        return Padding(
-          padding: index == 0
-              ? const EdgeInsets.all(0)
-              : const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
-          child: Column(
-            children: <Widget>[
-              _participants == null
-                  ? Text('Nenhum participante encontrado.')
-                  : Row(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8, horizontal: 20),
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: CircleAvatar(
-                              radius: 25.0,
-                              backgroundColor:
-                                  ColorsPalette.backgroundColorLight,
-                              backgroundImage: NetworkImage(
-                                  _participants[index].photoUrl != null
-                                      ? _participants[index].photoUrl
-                                      : _emptyPhotoURL),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  _participants[index].displayName,
-                                  style: TextStyle(
-                                    inherit: true,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                Text(
-                                  _participants[index].identifier,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-              Divider(
-                indent: 30,
-                endIndent: 30,
+        return Dismissible(
+          key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment(0.9, 0),
+            child: Icon(
+              Icons.delete_forever,
+              color: ColorsPalette.background,
+            ),
+          ),
+          onDismissed: (direction) async {
+            _tempParticipant = _participants[index];
+            _tempIndex = index;
+
+            final _snack = SnackBar(
+              content: Text('Participante removido com sucesso.'),
+              duration: Duration(seconds: 3),
+              action: SnackBarAction(
+                label: 'Desfazer',
+                onPressed: () async {
+                  await FirebaseService.createEventParticipants(
+                      widget.event, _tempParticipant);
+                  await FirebaseService.createParticipantEvents(
+                      _tempParticipant.id, widget.event);
+                  for (var occurrence in _tmpOccurrences) {
+                    await FirebaseService.createOccurrenceGroupByDate(
+                        _tempParticipant.id, occurrence);
+                  }
+                  setState(() {
+                    _participants.insert(_tempIndex, _tempParticipant);
+                  });
+                },
               ),
-            ],
+            );
+
+            // Delete from List
+            _participants.removeAt(index);
+
+            await FirebaseService.deleteEventParticipants(
+                widget.event, _tempParticipant.id);
+            await FirebaseService.deleteParticipantEvents(
+                _tempParticipant.id, widget.event.id);
+            _tmpOccurrences = await FirebaseService.deleteOccurrenceGroupByDate(
+                _tempParticipant.id, widget.event.id);
+
+            print('DATA DELETED !');
+
+            Scaffold.of(context).removeCurrentSnackBar();
+            Scaffold.of(context).showSnackBar(_snack);
+          },
+          child: Padding(
+            padding: index == 0
+                ? const EdgeInsets.all(0)
+                : const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+            child: Column(
+              children: <Widget>[
+                _participants == null
+                    ? Text('Nenhum participante encontrado.')
+                    : Row(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 20),
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: CircleAvatar(
+                                radius: 25.0,
+                                backgroundColor:
+                                    ColorsPalette.backgroundColorLight,
+                                backgroundImage: NetworkImage(
+                                    _participants[index].photoUrl != null
+                                        ? _participants[index].photoUrl
+                                        : _emptyPhotoURL),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    _participants[index].displayName,
+                                    style: TextStyle(
+                                      inherit: true,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  Text(
+                                    _participants[index].identifier,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                Divider(
+                  indent: 30,
+                  endIndent: 30,
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -404,9 +462,10 @@ class _EventDetailsState extends State<EventDetails> {
                 context,
                 SlideLeftRoute(
                   page: DetailsOccurrence(
-                    occurrence: _occurrences[index],
-                    event: widget.event,
-                  ),
+                      occurrence: _occurrences[index],
+                      event: widget.event,
+                      onSignedOut: widget.onSignedOut,
+                      currentUser: widget.currentUser),
                 ),
               );
             },
@@ -461,13 +520,16 @@ class _MyDialogState extends State<MyDialog> {
         });
 
     final _btnCancel = FlatButton(
-      child: new Text("Cancelar"),
+      child: new Text("Cancelar",
+          style: TextStyle(color: ColorsPalette.textColorDark90)),
       onPressed: () {
         Navigator.of(context).pop();
       },
     );
     final _btnEdit = FlatButton(
-      child: new Text('Editar'),
+      child: new Text('Editar',
+          style: TextStyle(
+              color: ColorsPalette.textColorDark, fontWeight: FontWeight.w700)),
       onPressed: (widget.titleController.text.isEmpty ||
               widget.descController.text.isEmpty)
           ? null

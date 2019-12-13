@@ -20,7 +20,6 @@ class FirebaseService {
   /// Update Event
   static Future<void> updateEvent(model.Event item) async {
     final _itemRef = _databaseRef.child(FirebaseConstant.event).child(item.id);
-    // Map<String, dynamic> newValue = item.toJson();
     _itemRef.update(item.toJson().cast<String, dynamic>());
   }
 
@@ -40,7 +39,6 @@ class FirebaseService {
         .child(FirebaseConstant.ownerEvents)
         .child(item.ownerId)
         .child(item.id);
-    // Map<String, dynamic> newValue = item.toJson();
     _itemRef.update(item.toJson().cast<String, dynamic>());
   }
 
@@ -155,8 +153,6 @@ class FirebaseService {
     final _itemRef =
         _databaseRef.child(FirebaseConstant.ownerEvents).child(userId);
 
-    print('FLAMENGO N E TIME');
-
     await _itemRef.once().then((DataSnapshot snapshot) {
       final value = snapshot.value as Map;
 
@@ -186,10 +182,12 @@ class FirebaseService {
         _databaseRef.child(FirebaseConstant.eventOccurrences).child(eventId);
     await _itemRef.once().then((DataSnapshot snapshot) {
       final value = snapshot.value as Map;
-      for (final key in value.keys) {
-        Occurrence i = Occurrence.fromJson(snapshot.value[key]);
-        items.add(i);
-        print(i.toJson());
+      if (value != null) {
+        for (final key in value.keys) {
+          Occurrence i = Occurrence.fromJson(snapshot.value[key]);
+          items.add(i);
+          print(i.toJson());
+        }
       }
       print(items.toString());
     });
@@ -211,6 +209,84 @@ class FirebaseService {
       }
     });
     return items;
+  }
+
+  /// Delete Event
+  static Future<void> deleteEventParticipants(
+      model.Event item, String participantId) async {
+    final _itemRef =
+        _databaseRef.child(FirebaseConstant.eventParticipants).child(item.id);
+    _itemRef.child(participantId).remove();
+    final _eventRef = _databaseRef.child(FirebaseConstant.event).child(item.id);
+    final _ownerRef = _databaseRef
+        .child(FirebaseConstant.ownerEvents)
+        .child(item.ownerId)
+        .child(item.id);
+
+    int count = int.parse(item.countParticipants) - 1;
+    _eventRef.child("count_participants").set(count.toString());
+    _ownerRef.child("count_participants").set(count.toString());
+  }
+
+  /// Delete Event
+  static Future<void> deleteEventOccurrences(
+      model.Event item, String occurrenceId) async {
+    final _itemRef =
+        _databaseRef.child(FirebaseConstant.eventOccurrences).child(item.id);
+    _itemRef.child(occurrenceId).remove();
+  }
+
+  /// Delete Event
+  static Future<void> deleteParticipantEvents(
+      String participantId, String eventId) async {
+    final _itemRef = _databaseRef
+        .child(FirebaseConstant.participantEvents)
+        .child(participantId);
+    _itemRef.child(eventId).remove();
+  }
+
+  /// Create EventOccurrence
+  static Future<List<Occurrence>> deleteOccurrenceGroupByDate(
+      String userId, String eventId,
+      {String occurrenceId = ""}) async {
+    List<Occurrence> _occurrences = await getEventOccurrences(eventId);
+    List<Occurrence> _tmpOccurrences = [];
+    final _itemRef = _databaseRef
+        .child(FirebaseConstant.occurrencesGroupByDate)
+        .child(userId);
+
+    if (occurrenceId == "") {
+      await _itemRef.once().then((DataSnapshot snapshot) {
+        final value = snapshot.value as Map;
+        if (value != null) {
+          for (final key in value.keys) {
+            var t = value[key] as Map;
+            t.forEach((k, v) {
+              Occurrence occurrence = Occurrence.fromJson(v);
+              _tmpOccurrences.add(occurrence);
+              for (Occurrence item in _occurrences) {
+                if (item == occurrence) {
+                  _itemRef.child(key).child(occurrence.id).remove();
+                }
+              }
+            });
+          }
+        }
+      });
+    } else {
+      await _itemRef.once().then((DataSnapshot snapshot) {
+        final value = snapshot.value as Map;
+        if (value != null) {
+          for (final key in value.keys) {
+            var t = value[key] as Map;
+            t.forEach((k, v) {
+              _itemRef.child(key).child(occurrenceId).remove();
+            });
+          }
+        }
+      });
+    }
+    return _tmpOccurrences;
   }
 
   /// Get Event's Occurrences
@@ -249,16 +325,10 @@ class FirebaseService {
       model.Event event, List<Occurrence> occurrences) async {
     final _itemRef =
         _databaseRef.child(FirebaseConstant.eventOccurrences).child(event.id);
-    //
-    // final _groupByRef =
-    //     _databaseRef.child(FirebaseConstant.eventsByDate).child(userId);
     occurrences.forEach((item) {
       final occurrenceId = _itemRef.push().key;
       item.id = occurrenceId;
       _itemRef.child(occurrenceId).set(item.toJson());
-
-      // TODO: Insert events_by_date
-      // _groupByRef.child(item.date).child(event.id).set(item.toJson());
     });
   }
 
@@ -331,8 +401,6 @@ class FirebaseService {
   /// Create User
   static Future<void> createUser(User item) async {
     final _itemRef = _databaseRef.child(FirebaseConstant.user);
-    // final _id = _itemRef.push().key;
-    // item.id = _id;
     _itemRef.child(item.id).set(item.toJson());
   }
 

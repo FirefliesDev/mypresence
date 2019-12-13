@@ -13,7 +13,7 @@ class FirebaseConstant {
   static const String occurrence = "occurrence";
 
   ///
-  static const String occurrencePresence = "occurrence_presence";
+  static const String attendanceSheet = "attendance_sheet";
 
   ///
   static const String eventOccurrences = "event_occurrences";

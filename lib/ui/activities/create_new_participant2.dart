@@ -28,7 +28,7 @@ class _CreateNewParticipantState extends State<CreateNewParticipant> {
   //LÓGICA LISTA
   TextEditingController editingController = TextEditingController();
   //final duplicateItems = List<String>.generate(1, (i) => "Item $i");
-  Future<List<User>> items;
+  var items = List<String>();
 
   @override
   void initState() {
@@ -49,45 +49,45 @@ class _CreateNewParticipantState extends State<CreateNewParticipant> {
         }
       });
       setState(() {
-        //items.clear();
+        items.clear();
         //items.addAll(dummyListData);
         print(items);
       });
       return;
     } else {
       setState(() {
-        //items.clear();
+        items.clear();
         //items.addAll(duplicateItems);
       });
     }
   }
 
-  Future<List<User>> filterSearchResultsParticipants(String query) {
-    List<User> participantsSearchList = List<User>();
+  void filterSearchResultsParticipants(String query) {
+    List<String> participantsSearchList = List<String>();
     _participants.contains(query);
     for (var participant in _participants) {
-      participantsSearchList.add(participant);
+      participantsSearchList.add(participant.identifier);
       //print(participant.identifier);
     }
     print(participantsSearchList);
     if (query.isNotEmpty) {
-      List<User> participantsListData = List<User>();
+      List<String> participantsListData = List<String>();
       participantsSearchList.forEach((item) {
-        if (item.identifier.contains(query)) {
+        if (item.contains(query)) {
           participantsListData.add(item);
         }
       });
       setState(() {
-        //items.clear();
+        items.clear();
         items.addAll(participantsListData);
         print('SET1:: ${items}');
       });
-      return items;
+      return;
     } else {
       setState(() {
         items.clear();
         //items.addAll(participantsListData);
-        print('sem itens');
+        print('hgfhgf');
       });
     }
   }
@@ -162,50 +162,50 @@ class _CreateNewParticipantState extends State<CreateNewParticipant> {
               _participants == null
                   ? Text('Nenhum participante encontrado.')
                   : Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8, horizontal: 20),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: CircleAvatar(
-                        radius: 25.0,
-                        backgroundColor:
-                        ColorsPalette.backgroundColorLight,
-                        backgroundImage: NetworkImage(
-                            _participants[index].photoUrl != null
-                                ? _participants[index].photoUrl
-                                : _emptyPhotoURL),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            _participants[index].displayName,
-                            style: TextStyle(
-                              inherit: true,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 18,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 20),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: CircleAvatar(
+                              radius: 25.0,
+                              backgroundColor:
+                                  ColorsPalette.backgroundColorLight,
+                              backgroundImage: NetworkImage(
+                                  _participants[index].photoUrl != null
+                                      ? _participants[index].photoUrl
+                                      : _emptyPhotoURL),
                             ),
                           ),
-                          Text(
-                            _participants[index].identifier,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w300,
-                              fontSize: 14,
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  _participants[index].displayName,
+                                  style: TextStyle(
+                                    inherit: true,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                Text(
+                                  _participants[index].identifier,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
               Divider(
                 indent: 30,
                 endIndent: 30,

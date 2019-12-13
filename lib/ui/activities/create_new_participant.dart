@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mypresence/database/firebase_service.dart';
@@ -24,17 +26,22 @@ class CreateNewParticipant extends StatefulWidget {
 class _CreateNewParticipantState extends State<CreateNewParticipant> {
   List<User> _participants = new List();
   var _futureParticipants;
+  var _futureTeste;
 
   //LÓGICA LISTA
   TextEditingController editingController = TextEditingController();
   //final duplicateItems = List<String>.generate(1, (i) => "Item $i");
-  Future<List<User>> items;
+  var items = List<String>();
 
   @override
   void initState() {
     //items.addAll(duplicateItems);
     super.initState();
-    _futureParticipants = FirebaseService.getUsers();
+    FirebaseService.getUsers().then((items) {
+      _participants = items;
+      print('DATA FETCHED');
+    });
+    // _futureParticipants = FirebaseService.getUsers();
   }
 
   void filterSearchResults(String query) {
@@ -49,22 +56,24 @@ class _CreateNewParticipantState extends State<CreateNewParticipant> {
         }
       });
       setState(() {
-        //items.clear();
+        items.clear();
         //items.addAll(dummyListData);
         print(items);
       });
       return;
     } else {
       setState(() {
-        //items.clear();
+        items.clear();
         //items.addAll(duplicateItems);
       });
     }
   }
 
   Future<List<User>> filterSearchResultsParticipants(String query) {
+    var completer = Completer<List<User>>();
+
     List<User> participantsSearchList = List<User>();
-    _participants.contains(query);
+    // _participants.contains(query);
     for (var participant in _participants) {
       participantsSearchList.add(participant);
       //print(participant.identifier);
@@ -77,18 +86,20 @@ class _CreateNewParticipantState extends State<CreateNewParticipant> {
           participantsListData.add(item);
         }
       });
-      setState(() {
-        //items.clear();
-        items.addAll(participantsListData);
-        print('SET1:: ${items}');
-      });
-      return items;
+      // setState(() {
+      //   // items.clear();
+      //   // items.addAll(participantsListData);
+      //   // print('SET1:: ${items}');
+      // });
+      completer.complete(participantsListData);
+      return completer.future;
     } else {
-      setState(() {
-        items.clear();
-        //items.addAll(participantsListData);
-        print('sem itens');
-      });
+      // setState(() {
+      //   items.clear();
+      //   //items.addAll(participantsListData);
+      //   print('fdkslhjf');
+      // });
+      return null;
     }
   }
 
@@ -102,7 +113,10 @@ class _CreateNewParticipantState extends State<CreateNewParticipant> {
             children: <Widget>[
               TextField(
                 onChanged: (value) {
-                  filterSearchResultsParticipants(value);
+                  // filterSearchResultsParticipants(value);
+                  setState(() {
+                    _futureTeste = filterSearchResultsParticipants(value);
+                  });
                 },
                 controller: editingController,
                 decoration: InputDecoration(
@@ -117,19 +131,26 @@ class _CreateNewParticipantState extends State<CreateNewParticipant> {
                   itemCount: 1,
                   itemBuilder: (context, index) {
                     return new FutureBuilder(
-                      future: _futureParticipants,
+                      future: _futureTeste,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.done) {
-                          _participants = snapshot.data;
+                          // _participants = snapshot.data;
+                          List<User> result = snapshot.data;
 
-                          if (_participants != null) {
-                            _participants.sort((a, b) {
+                          print('Result => ${result.length}');
+
+                          // filterSearchResultsParticipants('thi').then((items) {
+                          //   print('PRINT HERE => ' + items.length.toString());
+                          // });
+
+                          if (result != null) {
+                            result.sort((a, b) {
                               return a.displayName
                                   .toLowerCase()
                                   .compareTo(b.displayName.toLowerCase());
                             });
                           }
-                          return _buildListParticipants();
+                          return _buildListParticipants(result);
                         } else {
                           return Container();
                         }
@@ -145,13 +166,13 @@ class _CreateNewParticipantState extends State<CreateNewParticipant> {
     );
   }
 
-  Widget _buildListParticipants() {
+  Widget _buildListParticipants(List<User> participants) {
     final String _emptyPhotoURL =
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
     return ListView.builder(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: _participants == null ? 0 : _participants.length,
+      itemCount: participants == null ? 0 : participants.length,
       itemBuilder: (context, index) {
         return Padding(
           padding: index == 0
@@ -159,53 +180,53 @@ class _CreateNewParticipantState extends State<CreateNewParticipant> {
               : const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
           child: Column(
             children: <Widget>[
-              _participants == null
+              participants == null
                   ? Text('Nenhum participante encontrado.')
                   : Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8, horizontal: 20),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: CircleAvatar(
-                        radius: 25.0,
-                        backgroundColor:
-                        ColorsPalette.backgroundColorLight,
-                        backgroundImage: NetworkImage(
-                            _participants[index].photoUrl != null
-                                ? _participants[index].photoUrl
-                                : _emptyPhotoURL),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            _participants[index].displayName,
-                            style: TextStyle(
-                              inherit: true,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 18,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 20),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: CircleAvatar(
+                              radius: 25.0,
+                              backgroundColor:
+                                  ColorsPalette.backgroundColorLight,
+                              backgroundImage: NetworkImage(
+                                  participants[index].photoUrl != null
+                                      ? participants[index].photoUrl
+                                      : _emptyPhotoURL),
                             ),
                           ),
-                          Text(
-                            _participants[index].identifier,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w300,
-                              fontSize: 14,
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  participants[index].displayName,
+                                  style: TextStyle(
+                                    inherit: true,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                Text(
+                                  participants[index].identifier,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
               Divider(
                 indent: 30,
                 endIndent: 30,

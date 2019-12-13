@@ -5,22 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:mypresence/database/firebase_service.dart';
 import 'package:mypresence/model/event.dart';
 import 'package:mypresence/model/occurrence.dart';
 import 'package:mypresence/model/user.dart';
-import 'package:mypresence/ui/activities/event_details_management.dart';
 import 'package:mypresence/utils/colors_palette.dart';
-import 'package:mypresence/utils/transitions/fade_route.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-
-import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui';
-
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 
 class AttendancesSheet extends StatefulWidget {
   final Occurrence occurrence;

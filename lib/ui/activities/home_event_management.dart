@@ -99,28 +99,29 @@ class _HomeEventManagementState extends State<HomeEventManagement> {
       itemCount: events == null ? 0 : events.length,
       itemBuilder: (context, index) {
         return Padding(
-            padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
-            child: ListTileItem(
-              eventName: events[index].title,
-              colorHeader: ColorsPalette.primaryColorLight,
-              colorEventName: ColorsPalette.backgroundColorLight,
-              colorEventTime: ColorsPalette.backgroundColorLight,
-              divider: false,
-              count: int.parse(events[index].countParticipants),
-              onTap: () {
-                print('Clicked -> ${events[index].toJson()}');
-                Navigator.push(
-                  context,
-                  FadeRoute(
-                    page: EventDetails(
-                      event: events[index],
-                      currentUser: widget.currentUser,
-                      onSignedOut: widget.onSignedOut,
-                    ),
+          padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+          child: ListTileItem(
+            eventName: events[index].title,
+            colorHeader: ColorsPalette.primaryColorLight,
+            colorEventName: ColorsPalette.backgroundColorLight,
+            colorEventTime: ColorsPalette.backgroundColorLight,
+            divider: false,
+            count: int.parse(events[index].countParticipants),
+            onTap: () {
+              print('Clicked -> ${events[index].toJson()}');
+              Navigator.push(
+                context,
+                FadeRoute(
+                  page: EventDetails(
+                    event: events[index],
+                    currentUser: widget.currentUser,
+                    onSignedOut: widget.onSignedOut,
                   ),
-                );
-              },
-            ));
+                ),
+              );
+            },
+          ),
+        );
       },
     );
   }

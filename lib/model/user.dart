@@ -4,13 +4,15 @@ class User {
   String provider;
   String photoUrl;
   String displayName;
+  bool present;
 
   User(
       {this.id,
       this.identifier,
       this.provider,
       this.photoUrl,
-      this.displayName});
+      this.displayName,
+      this.present = false});
 
   User.fromJson(Map<dynamic, dynamic> json) {
     id = json['id'];
